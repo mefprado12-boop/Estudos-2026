@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estudos 2026 — Residência Médica</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --am:#F0C230;--amc:#FDF5CC;--amh:#F7D66A;
+  --ve:#4BAF82;--vec:#D0EFE2;--ves:#2D7A55;
+  --bg:#FAFAF3;--bg2:#F3F3E8;--tx:#1C1C12;--txs:#6B6B55;
+  --bo:#E5E5D0;--al:#E05252;--alb:#FDEAEA;
+  --me:#E8952A;--meb:#FEF3E0;
+  --sh:0 2px 12px rgba(0,0,0,.06);--shm:0 4px 24px rgba(0,0,0,.10);
+  --cl-b:#EBF4FF;--cl-t:#1A5FA0;--cl-r:#B8D8F8;
+  --ci-b:#FFF0E8;--ci-t:#B04010;--ci-r:#F8C8A8;
+  --pe-b:#F0EBFF;--pe-t:#5A1AB0;--pe-r:#D0B8F8;
+  --gi-b:#FFE8F2;--gi-t:#A01060;--gi-r:#F8B8D8;
+  --pr-b:#E8F8EE;--pr-t:#1A7A40;--pr-r:#A8E8C0;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;}
+#sync-bar{position:fixed;bottom:16px;right:16px;z-index:500;display:flex;align-items:center;gap:8px;background:white;border:1.5px solid var(--bo);border-radius:99px;padding:7px 14px;font-size:12px;font-weight:500;color:var(--txs);box-shadow:var(--sh);transition:all .4s;}
+#sync-bar.saving{border-color:var(--am);color:#8B6800;background:var(--amc);}
+#sync-bar.saved{border-color:var(--ve);color:var(--ves);background:var(--vec);}
+#sync-bar.error{border-color:var(--al);color:var(--al);background:var(--alb);}
+.sync-dot{width:8px;height:8px;border-radius:99px;background:currentColor;flex-shrink:0;}
+#sync-bar.saving .sync-dot{animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.2;}}
+header{background:linear-gradient(135deg,#FFFDF0,#F5FAF0,#EDFAF3);border-bottom:2px solid #E0EDD8;padding:18px 32px 0;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.07);}
+.htop{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-i{width:40px;height:40px;background:var(--am);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;}
+.logo-t h1{font-family:'Playfair Display',serif;color:var(--ves);font-size:20px;font-weight:700;}
+.logo-t span{color:var(--ve);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;}
+.hsts{display:flex;gap:20px;}
+.hst{text-align:center;}
+.hst-n{font-family:'Playfair Display',serif;color:var(--ves);font-size:24px;font-weight:700;line-height:1;}
+.hst-l{color:var(--txs);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+nav{display:flex;gap:2px;flex-wrap:wrap;}
+.tab{padding:10px 16px;border:none;background:transparent;color:var(--txs);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border-radius:8px 8px 0 0;transition:all .2s;position:relative;border-bottom:2px solid transparent;}
+.tab:hover{color:var(--ves);background:rgba(75,175,130,.06);}
+.tab.active{color:var(--ves);background:white;font-weight:700;border-bottom:2px solid var(--ve);}
+.tab .bdg{position:absolute;top:5px;right:5px;background:var(--al);color:white;font-size:9px;font-weight:700;border-radius:99px;padding:1px 5px;display:none;}
+.tab .bdg.show{display:inline;}
+.page{display:none;padding:22px 32px;max-width:1380px;margin:0 auto;}
+.page.active{display:block;}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+.st{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;}
+.ss{color:var(--txs);font-size:13px;margin-top:2px;}
+.tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;border:1px solid transparent;display:inline-block;white-space:nowrap;}
+.tag-al{background:var(--alb);color:var(--al);border-color:#F8C0C0;}
+.tag-me{background:var(--meb);color:#B06010;border-color:#F8D8A0;}
+.tag-bx{background:var(--vec);color:var(--ves);border-color:#A8DEC8;}
+.tag-cl{background:var(--cl-b);color:var(--cl-t);border-color:var(--cl-r);}
+.tag-ci{background:var(--ci-b);color:var(--ci-t);border-color:var(--ci-r);}
+.tag-pe{background:var(--pe-b);color:var(--pe-t);border-color:var(--pe-r);}
+.tag-gi{background:var(--gi-b);color:var(--gi-t);border-color:var(--gi-r);}
+.tag-pr{background:var(--pr-b);color:var(--pr-t);border-color:var(--pr-r);}
+.tag-sb{background:var(--bg2);color:var(--txs);border-color:var(--bo);}
+.filt{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;align-items:center;}
+.fb{padding:5px 12px;border-radius:99px;border:1.5px solid var(--bo);background:white;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--txs);cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;}
+.fb:hover{border-color:var(--ve);background:var(--vec);color:var(--ves);}
+.fb.on{border-color:var(--ve);background:var(--vec);color:var(--ves);font-weight:700;}
+.fb.f-cl.on{background:var(--cl-b);color:var(--cl-t);border-color:var(--cl-r);}
+.fb.f-ci.on{background:var(--ci-b);color:var(--ci-t);border-color:var(--ci-r);}
+.fb.f-pe.on{background:var(--pe-b);color:var(--pe-t);border-color:var(--pe-r);}
+.fb.f-gi.on{background:var(--gi-b);color:var(--gi-t);border-color:var(--gi-r);}
+.fb.f-pr.on{background:var(--pr-b);color:var(--pr-t);border-color:var(--pr-r);}
+.fb.f-al.on{background:var(--alb);color:var(--al);border-color:#F8C0C0;}
+.fb.f-me.on{background:var(--meb);color:#B06010;border-color:#F8D8A0;}
+.fb.f-bx.on{background:var(--vec);color:var(--ves);border-color:#A8DEC8;}
+.fb.f-late.on{background:var(--alb);color:var(--al);border-color:#F8C0C0;}
+.filt-sep{width:1px;height:20px;background:var(--bo);margin:0 2px;}
+.sb{flex:1;min-width:170px;max-width:270px;position:relative;}
+.sb input{width:100%;padding:6px 12px 6px 32px;border-radius:99px;border:1.5px solid var(--bo);background:white;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;}
+.sb input:focus{border-color:var(--ve);}
+.si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--txs);font-size:13px;}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;}
+.tc{background:white;border-radius:13px;border:1.5px solid var(--bo);overflow:hidden;transition:all .2s;cursor:pointer;box-shadow:var(--sh);}
+.tc:hover{box-shadow:var(--shm);transform:translateY(-1px);}
+.tc.done{border-left:4px solid var(--ve);}
+.tc.sched{border-left:4px solid var(--am);}
+.tc.late-c{border-left:4px solid var(--al);}
+.tc-h{padding:12px 14px 8px;display:flex;align-items:flex-start;justify-content:space-between;gap:6px;}
+.tc-ti{font-weight:600;font-size:13px;line-height:1.35;flex:1;}
+.tc-btns{display:flex;gap:4px;flex-shrink:0;}
+.ck{width:21px;height:21px;border-radius:6px;border:2px solid var(--bo);background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.ck.on{background:var(--ve);border-color:var(--ve);}
+.ck.on::after{content:'✓';color:white;font-size:12px;font-weight:700;}
+.edit-btn{width:21px;height:21px;border-radius:6px;border:1.5px solid var(--bo);background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--txs);}
+.edit-btn:hover{background:var(--bg2);}
+.tc-m{padding:0 14px 9px;display:flex;flex-wrap:wrap;gap:4px;}
+.tc-d{padding:0 14px 7px;font-size:11px;color:var(--txs);display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.tc-s{border-top:1px solid var(--bo);padding:8px 14px;display:none;}
+.tc.exp .tc-s{display:block;}
+.tc-s ul{list-style:none;}
+.tc-s li{font-size:12px;color:var(--txs);padding:4px 0;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--bg2);}
+.tc-s li:last-child{border-bottom:none;}
+.sk{width:14px;height:14px;border-radius:4px;border:1.5px solid var(--bo);background:white;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.sk.on{background:var(--ve);border-color:var(--ve);}
+.sk.on::after{content:'✓';color:white;font-size:9px;font-weight:700;}
+.tw{background:white;border-radius:13px;border:1.5px solid var(--bo);overflow:hidden;box-shadow:var(--sh);overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{background:linear-gradient(135deg,#EEF7EC,#F5F9EE);color:var(--ves);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:11px 12px;text-align:left;border-bottom:1.5px solid var(--vec);white-space:nowrap;}
+td{padding:9px 12px;font-size:13px;border-bottom:1px solid var(--bg2);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg);}
+.ri{width:52px;padding:3px 5px;border-radius:6px;border:1.5px solid var(--bo);font-family:'DM Sans',sans-serif;font-size:12px;text-align:center;outline:none;background:var(--bg);}
+.ri:focus{border-color:var(--ve);background:white;}
+.di{padding:3px 6px;border-radius:6px;border:1.5px solid var(--bo);font-family:'DM Sans',sans-serif;font-size:11px;outline:none;background:var(--bg);color:var(--tx);}
+.di:focus{border-color:var(--ve);background:white;}
+.pd{font-weight:700;font-size:12px;}
+.ph{color:var(--ve);}.pm{color:var(--me);}.pl{color:var(--al);}
+.pm2{height:5px;border-radius:99px;background:var(--bo);overflow:hidden;width:56px;margin-top:3px;}
+.pm2f{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ve),var(--am));transition:width .4s;}
+.cb{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap;border:1px solid transparent;}
+.c1C{background:var(--amc);color:#8B6800;border-color:#E8D880;}
+.cR1{background:var(--cl-b);color:var(--cl-t);border-color:var(--cl-r);}
+.cR2{background:var(--meb);color:#8B4400;border-color:#F8C878;}
+.cR3{background:var(--pe-b);color:var(--pe-t);border-color:var(--pe-r);}
+.cR4{background:var(--vec);color:var(--ves);border-color:#A0D8C0;}
+.pg3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.pc{background:white;border-radius:12px;border:1.5px solid var(--bo);padding:14px 16px;box-shadow:var(--sh);}
+.pc-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--txs);margin-bottom:10px;}
+.pc-r{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bg2);}
+.pc-r:last-child{border-bottom:none;}
+.pc-l{font-size:12px;color:var(--txs);display:flex;align-items:center;gap:5px;}
+.pc-v{font-weight:700;font-size:13px;}
+.dtop{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.dc{background:white;border-radius:12px;border:1.5px solid var(--bo);padding:16px 18px;box-shadow:var(--sh);display:flex;align-items:center;gap:14px;}
+.dn{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:var(--ves);line-height:1;}
+.dl{font-size:12px;color:var(--txs);margin-top:3px;text-transform:uppercase;letter-spacing:.8px;}
+.db{height:6px;border-radius:99px;background:var(--bo);overflow:hidden;margin-top:7px;width:100%;}
+.dbf{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ve),var(--am));transition:width .6s;}
+.sec-sep{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--txs);margin:20px 0 10px;padding-bottom:6px;border-bottom:1.5px solid var(--bo);}
+.cal-outer{display:grid;grid-template-columns:1fr 310px;gap:14px;}
+.cm{background:white;border-radius:13px;border:1.5px solid var(--bo);overflow:hidden;box-shadow:var(--sh);}
+.ch{background:linear-gradient(135deg,#EEF7EC,#F5FAF0);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid var(--vec);}
+.ch h3{font-family:'Playfair Display',serif;color:var(--ves);font-size:17px;}
+.cn button{background:white;border:1.5px solid var(--bo);color:var(--ves);width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:14px;margin-left:5px;}
+.cn button:hover{background:var(--vec);}
+.cdow{display:grid;grid-template-columns:repeat(7,1fr);padding:8px 10px 3px;}
+.cdn{text-align:center;font-size:10px;font-weight:700;color:var(--txs);text-transform:uppercase;}
+.cgr2{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:4px 10px 10px;}
+.cd{min-height:80px;border-radius:8px;padding:4px;transition:all .15s;position:relative;}
+.cd.droptgt{background:rgba(75,175,130,.15);border:2px dashed var(--ve);}
+.cd:hover:not(.ot){background:var(--bg2);}
+.cd.ot{opacity:.3;}
+.cd.td2{background:var(--amc);}
+.cd.td2 .dn2{background:var(--am);color:var(--tx);border-radius:99px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.dn2{font-size:12px;font-weight:500;margin-bottom:2px;}
+.des{display:flex;flex-direction:column;gap:2px;}
+.de{font-size:9px;padding:2px 5px;border-radius:3px;font-weight:500;white-space:normal;word-break:break-word;line-height:1.3;cursor:grab;display:flex;justify-content:space-between;align-items:flex-start;gap:2px;}
+.de:active{opacity:.6;}
+.de-del{background:none;border:none;cursor:pointer;font-size:9px;color:inherit;opacity:.6;padding:0;flex-shrink:0;}
+.de-del:hover{opacity:1;}
+.de-s{background:var(--amc);color:#8B6800;}
+.de-r{background:var(--vec);color:var(--ves);}
+.de-p{background:var(--cl-b);color:var(--cl-t);}
+.de-pc{background:var(--pe-b);color:var(--pe-t);}
+.de-sched{background:#FFF8D0;color:#8B6800;border:1px solid var(--am);}
+.de-late{background:var(--alb);color:var(--al);border:1px solid var(--al);}
+.cs{display:flex;flex-direction:column;gap:12px;}
+.sc{background:white;border-radius:13px;border:1.5px solid var(--bo);overflow:hidden;box-shadow:var(--sh);}
+.sc-h{background:var(--bg2);padding:11px 14px;border-bottom:1px solid var(--bo);font-weight:600;font-size:13px;}
+.sc-b{padding:11px 14px;}
+.wi{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--bg2);}
+.wi:last-child{border-bottom:none;}
+.wd{width:7px;height:7px;border-radius:99px;flex-shrink:0;margin-top:3px;}
+.wd-s{background:var(--am);}.wd-r{background:var(--ve);}.wd-p{background:#4080E0;}.wd-l{background:var(--al);}
+.wi-i{flex:1;}
+.wi-ti{font-size:12px;font-weight:500;}
+.wi-su{font-size:11px;color:var(--txs);}
+.wi-d{font-size:11px;color:var(--txs);white-space:nowrap;}
+.es{text-align:center;padding:12px;color:var(--txs);font-size:12px;}
+.prg{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:13px;}
+.prc{background:white;border-radius:13px;border:1.5px solid var(--bo);padding:18px;box-shadow:var(--sh);transition:all .2s;cursor:pointer;}
+.prc:hover{box-shadow:var(--shm);border-color:#4080E0;transform:translateY(-1px);}
+.pr-ti{font-weight:700;font-size:15px;font-family:'Playfair Display',serif;}
+.pr-in{font-size:12px;color:var(--txs);margin-top:2px;}
+.pr-st{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--bo);}
+.pr-s{text-align:center;}
+.pr-v{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;}
+.pr-v.g{color:var(--ve);}.pr-v.m{color:var(--me);}.pr-v.b{color:var(--al);}
+.pr-l{font-size:10px;color:var(--txs);margin-top:2px;}
+.pr-areas{margin-top:10px;padding-top:10px;border-top:1px solid var(--bo);display:flex;flex-direction:column;gap:5px;}
+.pr-area-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;}
+.pr-ob{margin-top:10px;padding-top:10px;border-top:1px solid var(--bo);font-size:12px;color:var(--txs);font-style:italic;}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
+.mo.open{display:flex;}
+.md{background:white;border-radius:16px;padding:24px;width:90%;max-width:560px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.md h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:16px;}
+.fg{margin-bottom:12px;}
+.fg label{display:block;font-size:12px;font-weight:600;color:var(--txs);margin-bottom:4px;}
+.fg input,.fg select,.fg textarea{width:100%;padding:8px 12px;border-radius:9px;border:1.5px solid var(--bo);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--tx);background:var(--bg);outline:none;transition:all .2s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--ve);background:white;}
+.fg textarea{height:68px;resize:vertical;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mf{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+.bn{padding:8px 16px;border-radius:9px;border:1.5px solid var(--bo);background:white;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;color:var(--txs);}
+.bs{padding:8px 20px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--ve),var(--ves));color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.bs:hover{opacity:.9;}
+.bd{padding:8px 16px;border-radius:9px;border:1.5px solid var(--alb);background:var(--alb);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;color:var(--al);}
+.bblu{background:linear-gradient(135deg,#4080E0,#2A5BC0);color:white;border:none;border-radius:9px;padding:8px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.bam{background:linear-gradient(135deg,var(--am),var(--amh));color:var(--tx);border:none;border-radius:9px;padding:8px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.bgr{background:linear-gradient(135deg,var(--ve),var(--ves));color:white;border:none;border-radius:9px;padding:8px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.bsm{padding:5px 10px;border-radius:7px;border:1.5px solid var(--bo);background:white;font-size:11px;font-weight:600;color:var(--txs);cursor:pointer;}
+.bsm:hover{background:var(--bg2);}
+.sub-list{list-style:none;margin-bottom:8px;}
+.sub-list li{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--bg2);}
+.sub-list li:last-child{border-bottom:none;}
+.sub-list input{flex:1;padding:4px 8px;border-radius:6px;border:1.5px solid var(--bo);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;}
+.sub-list input:focus{border-color:var(--ve);}
+.sub-del{background:none;border:none;cursor:pointer;color:var(--al);font-size:14px;padding:0 4px;}
+.area-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
+.area-ir{background:var(--bg2);border-radius:8px;padding:8px 10px;}
+.area-ir label{font-size:11px;font-weight:600;display:block;margin-bottom:4px;}
+.area-ir .fr{gap:6px;}
+.area-ir input{padding:5px 8px;font-size:12px;}
+.sec-lbl{font-size:12px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:.8px;margin:12px 0 6px;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--bo);border-radius:99px;}
+@media(max-width:768px){header{padding:14px 14px 0;}.hsts{display:none;}.page{padding:14px;}.cal-outer{grid-template-columns:1fr;}.tab{padding:8px 9px;font-size:11px;}.pg3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div id="sync-bar"><div class="sync-dot"></div><span id="sync-txt">Sincronizado ☁️</span></div>
+
+<header>
+  <div class="htop">
+    <div class="logo"><div class="logo-i">🩺</div><div class="logo-t"><h1>Estudos 2026</h1><span>Residência Médica</span></div></div>
+    <div class="hsts">
+      <div class="hst"><div class="hst-n" id="stt">0</div><div class="hst-l">Temas</div></div>
+      <div class="hst"><div class="hst-n" id="stf">0</div><div class="hst-l">Feitos</div></div>
+      <div class="hst"><div class="hst-n" id="str" style="color:var(--ve)">0</div><div class="hst-l">Revisões</div></div>
+      <div class="hst"><div class="hst-n" id="stp">0%</div><div class="hst-l">Progresso</div></div>
+    </div>
+  </div>
+  <nav>
+    <button class="tab active" onclick="goTab('cron')">📅 Cronograma</button>
+    <button class="tab" onclick="goTab('rev')">🔄 Revisões</button>
+    <button class="tab" onclick="goTab('desemp')">📊 Desempenho</button>
+    <button class="tab" onclick="goTab('cal')">🗓️ Calendário <span class="bdg" id="bdg"></span></button>
+    <button class="tab" onclick="goTab('prov')">📝 Provas / Simulados</button>
+  </nav>
+</header>
+
+<!-- CRONOGRAMA -->
+<div class="page active" id="page-cron">
+  <div class="sh">
+    <div><div class="st">Cronograma de Temas</div><div class="ss">Filtros combinados · ✏️ editar · ✓ marcar como feito</div></div>
+    <div style="display:flex;gap:8px;"><button class="bsm" onclick="togAll()">Expandir todos</button><button class="bgr" onclick="openNewTema()">+ Novo tema</button></div>
+  </div>
+  <div class="filt">
+    <div class="sb"><span class="si">🔍</span><input type="text" placeholder="Buscar tema..." oninput="rT()" id="srch"></div>
+    <div class="filt-sep"></div>
+    <button class="fb f-late" onclick="togF('late',this)">⚠️ Atrasados</button>
+    <button class="fb" onclick="togF('pend',this)">⏳ Pendentes</button>
+    <button class="fb" onclick="togF('done',this)">✅ Concluídos</button>
+    <div class="filt-sep"></div>
+    <button class="fb f-cl" onclick="togF('cl',this)">Clínica Médica</button>
+    <button class="fb f-ci" onclick="togF('ci',this)">Cirurgia Geral</button>
+    <button class="fb f-pe" onclick="togF('pe',this)">Pediatria</button>
+    <button class="fb f-gi" onclick="togF('gi',this)">Ginecologia e Obs.</button>
+    <button class="fb f-pr" onclick="togF('pr',this)">Preventiva e Social</button>
+    <div class="filt-sep"></div>
+    <button class="fb f-al" onclick="togF('al',this)">Alta prev.</button>
+    <button class="fb f-me" onclick="togF('me',this)">Média prev.</button>
+    <button class="fb f-bx" onclick="togF('bx',this)">Baixa prev.</button>
+  </div>
+  <div class="cgrid" id="tgrid"></div>
+</div>
+
+<!-- REVISÕES -->
+<div class="page" id="page-rev">
+  <div class="sh"><div><div class="st">Revisões</div><div class="ss">R1=1 semana · R2=1 mês · R3=2 meses · R4=4 meses · datas e questões editáveis</div></div></div>
+  <div class="pg3">
+    <div class="pc"><div class="pc-t" style="color:var(--al)">🔴 Alta prevalência</div>
+      <div class="pc-r"><span class="pc-l"><span class="cb c1C">1ºC</span></span><span class="pc-v">30 Q</span></div>
+      <div class="pc-r"><span class="pc-l"><span class="cb cR1">R1</span> 1 sem.</span><span class="pc-v">30 Q</span></div>
+      <div class="pc-r"><span class="pc-l"><span class="cb cR2">R2</span> 1 mês</span><span class="pc-v">25 Q</span></div>
+      <div class="pc-r"><span class="pc-l"><span class="cb cR3">R3</span> 2 meses</span><span class="pc-v">20 Q</span></div>
+      <div class="pc-r"><span class="pc-l"><span class="cb cR4">R4</span> 4 meses</span><span class="pc-v">20 Q</span></div>
+    </div>
+    <div class="pc"><div class="pc-t" style="color:var(--me)">🟡 Média prevalência</div>
+      <div class="pc-r"><span class="pc-l"><span class="cb c1C">1ºC</span></span><span class="pc-v">25 Q</span></div>
+      <div class="pc-r"><span class="pc-l"><span class="cb cR1">R1</span> 1 sem.</span><span class="pc-v">25 Q</span></div>
+      <div class="pc-r"><span class="pc-l"><span class="cb cR2">R2</span> 1 mês</span><span class="pc-v">20 Q</span></div>
+      <div class="pc-r"><span class="pc-l"><span class="cb cR3">R3</span> 2 meses</span><span class="pc-v">15 Q</span></div>
+      <div class="pc-r"><span class="pc-l"><span class="cb cR4">R4</span> 4 meses</span><span class="pc-v">15 Q</span></div>
+    </div>
+    <div class="pc"><div class="pc-t" style="color:var(--ves)">🟢 Baixa prevalência</div>
+      <div class="pc-r"><span class="pc-l"><span class="cb c1C">1ºC</span></span><span class="pc-v">20 Q</span></div>
+      <div class="pc-r"><span class="pc-l"><span class="cb cR1">R1</span> 1 sem.</span><span class="pc-v">20 Q</span></div>
+      <div class="pc-r"><span class="pc-l"><span class="cb cR2">R2</span> 1 mês</span><span class="pc-v">15 Q</span></div>
+      <div class="pc-r"><span class="pc-l"><span class="cb cR3">R3</span> 2 meses</span><span class="pc-v">10 Q</span></div>
+      <div class="pc-r"><span class="pc-l"><span class="cb cR4">R4</span> 4 meses</span><span class="pc-v">10 Q</span></div>
+    </div>
+  </div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th style="min-width:150px">Tema</th><th>Área</th><th>Prev.</th>
+      <th>1ºC — Data</th><th>nQ / %</th>
+      <th>R1 — Data</th><th>nQ / %</th>
+      <th>R2 — Data</th><th>nQ / %</th>
+      <th>R3 — Data</th><th>nQ / %</th>
+      <th>R4 — Data</th><th>nQ / %</th>
+    </tr></thead>
+    <tbody id="rtbody"></tbody>
+  </table></div>
+</div>
+
+<!-- DESEMPENHO -->
+<div class="page" id="page-desemp">
+  <div class="sh"><div><div class="st">Desempenho</div><div class="ss">Total de questões e % de acerto · inclui questões de provas</div></div></div>
+  <div class="dtop">
+    <div class="dc"><div style="font-size:26px">📝</div><div><div class="dn" id="d-tq">0</div><div class="dl" id="d-tq-lbl">Total de questões feitas</div></div></div>
+    <div class="dc"><div style="font-size:26px">🎯</div><div style="flex:1"><div class="dn" id="d-pct">—</div><div class="dl" id="d-pct-lbl">% médio de acerto</div><div class="db"><div class="dbf" id="d-bar" style="width:0%"></div></div></div></div>
+  </div>
+  <div class="filt" style="margin-bottom:14px;">
+    <button class="fb on" onclick="sDF('todos',this)">Todas as áreas</button>
+    <button class="fb f-cl" onclick="sDF('cl',this)">Clínica Médica</button>
+    <button class="fb f-ci" onclick="sDF('ci',this)">Cirurgia Geral</button>
+    <button class="fb f-pe" onclick="sDF('pe',this)">Pediatria</button>
+    <button class="fb f-gi" onclick="sDF('gi',this)">Ginecologia e Obs.</button>
+    <button class="fb f-pr" onclick="sDF('pr',this)">Preventiva</button>
+  </div>
+  <div class="tw" style="margin-bottom:20px;"><table>
+    <thead><tr><th style="min-width:160px">Tema</th><th>Área</th><th>Prev.</th><th>Total Q</th><th>% Geral</th></tr></thead>
+    <tbody id="dtbody"></tbody>
+  </table></div>
+  <div class="sec-sep">📝 Provas e Simulados</div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th style="min-width:160px">Prova</th><th>Data</th><th>Total Q</th><th>Acertos</th><th>% Geral</th>
+      <th>Clínica</th><th>Cirurgia</th><th>Pediatria</th><th>Ginecologia</th><th>Preventiva</th>
+    </tr></thead>
+    <tbody id="dtbody-prov"></tbody>
+  </table></div>
+</div>
+
+<!-- CALENDÁRIO -->
+<div class="page" id="page-cal">
+  <div class="sh">
+    <div><div class="st">Calendário</div><div class="ss">Arraste eventos · ✕ para excluir</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="bam" onclick="openSchedModal()">+ Agendar tema</button>
+      <button class="bblu" onclick="openCalProvModal()">+ Agendar prova</button>
+    </div>
+  </div>
+  <div class="cal-outer">
+    <div class="cm">
+      <div class="ch"><h3 id="cal-lbl">Abril 2026</h3><div class="cn"><button onclick="cM(-1)">‹</button><button onclick="cM(1)">›</button></div></div>
+      <div class="cdow"><div class="cdn">Dom</div><div class="cdn">Seg</div><div class="cdn">Ter</div><div class="cdn">Qua</div><div class="cdn">Qui</div><div class="cdn">Sex</div><div class="cdn">Sáb</div></div>
+      <div class="cgr2" id="cgrid"></div>
+    </div>
+    <div class="cs">
+      <div class="sc"><div class="sc-h">📅 Esta semana</div><div class="sc-b" id="wlist"><div class="es">Nenhum evento</div></div></div>
+      <div class="sc"><div class="sc-h" style="color:var(--al)">⚠️ Atrasados <span id="late-count"></span></div><div class="sc-b" id="late-list"><div class="es" style="color:var(--ves)">✅ Nada atrasado!</div></div></div>
+      <div class="sc">
+        <div class="sc-h">🔑 Legenda</div>
+        <div class="sc-b" style="display:flex;flex-direction:column;gap:7px;font-size:12px;">
+          <div style="display:flex;align-items:center;gap:7px;"><div style="width:11px;height:11px;border-radius:3px;background:var(--amc);border:1px solid var(--am);"></div>1º Contato (feito)</div>
+          <div style="display:flex;align-items:center;gap:7px;"><div style="width:11px;height:11px;border-radius:3px;background:#FFF8D0;border:1px solid var(--am);"></div>Agendado (pendente)</div>
+          <div style="display:flex;align-items:center;gap:7px;"><div style="width:11px;height:11px;border-radius:3px;background:var(--vec);border:1px solid var(--ve);"></div>Revisão programada</div>
+          <div style="display:flex;align-items:center;gap:7px;"><div style="width:11px;height:11px;border-radius:3px;background:var(--alb);border:1px solid var(--al);"></div>Atrasado</div>
+          <div style="display:flex;align-items:center;gap:7px;"><div style="width:11px;height:11px;border-radius:3px;background:var(--cl-b);border:1px solid var(--cl-r);"></div>Prova</div>
+          <div style="display:flex;align-items:center;gap:7px;"><div style="width:11px;height:11px;border-radius:3px;background:var(--pe-b);border:1px solid var(--pe-r);"></div>Correção</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROVAS -->
+<div class="page" id="page-prov">
+  <div class="sh">
+    <div><div class="st">Provas &amp; Simulados</div><div class="ss">Detalhe por grande área · aparece automaticamente no Desempenho</div></div>
+    <button class="bblu" onclick="openProvModal()">+ Nova prova</button>
+  </div>
+  <div class="prg" id="pgrid"></div>
+</div>
+
+<!-- MODAIS -->
+<div class="mo" id="edit-modal">
+  <div class="md">
+    <h3 id="edit-modal-title">Editar Tema</h3>
+    <div class="fg"><label>Nome do tema</label><input type="text" id="em-name"></div>
+    <div class="fr">
+      <div class="fg"><label>Grande área</label>
+        <select id="em-area">
+          <option value="">— Sem área —</option>
+          <option value="Clínica Médica">Clínica Médica</option>
+          <option value="Cirurgia Geral">Cirurgia Geral</option>
+          <option value="Pediatria">Pediatria</option>
+          <option value="Ginecologia e Obstetrícia">Ginecologia e Obstetrícia</option>
+          <option value="Medicina Preventiva e Social">Preventiva e Social</option>
+        </select>
+      </div>
+      <div class="fg"><label>Subárea</label><input type="text" id="em-sub" placeholder="Ex: Cardiologia"></div>
+    </div>
+    <div class="fg"><label>Prevalência</label>
+      <select id="em-prev">
+        <option value="">— Sem prevalência —</option>
+        <option value="Alta prevalência">Alta prevalência</option>
+        <option value="Média prevalência">Média prevalência</option>
+        <option value="Baixa prevalência">Baixa prevalência</option>
+      </select>
+    </div>
+    <div class="sec-lbl">Subtópicos</div>
+    <ul class="sub-list" id="em-subs"></ul>
+    <button class="bsm" onclick="addSubRow()">+ Adicionar subtópico</button>
+    <div class="mf">
+      <button class="bd" id="em-del" style="display:none" onclick="deleteTema()">Excluir tema</button>
+      <button class="bn" onclick="closeEditModal()">Cancelar</button>
+      <button class="bs" onclick="saveTema()">Salvar</button>
+    </div>
+  </div>
+</div>
+<div class="mo" id="sched-modal">
+  <div class="md">
+    <h3>Agendar Tema no Calendário</h3>
+    <div class="fg"><label>Tema</label><select id="sm-tema"></select></div>
+    <div class="fg"><label>Data do 1º Contato</label><input type="date" id="sm-data"></div>
+    <div class="mf"><button class="bn" onclick="closeSchedModal()">Cancelar</button><button class="bs" onclick="saveSched()">Agendar</button></div>
+  </div>
+</div>
+<div class="mo" id="cal-prov-modal">
+  <div class="md">
+    <h3>Agendar Prova / Correção</h3>
+    <div class="fg"><label>Descrição</label><input type="text" id="cp-desc" placeholder="Ex: Simulado MEDCEL"></div>
+    <div class="fr">
+      <div class="fg"><label>Data da Prova</label><input type="date" id="cp-data"></div>
+      <div class="fg"><label>Data de Correção</label><input type="date" id="cp-corr"></div>
+    </div>
+    <div class="mf">
+      <button class="bd" id="cp-del" style="display:none" onclick="delCalProv()">Excluir</button>
+      <button class="bn" onclick="closeCalProvModal()">Cancelar</button>
+      <button class="bs" onclick="saveCalProv()">Salvar</button>
+    </div>
+  </div>
+</div>
+<div class="mo" id="prov-modal">
+  <div class="md">
+    <h3>Registrar Prova / Simulado</h3>
+    <div class="fg"><label>Nome</label><input type="text" id="p-n" placeholder="Ex: Simulado MEDCEL"></div>
+    <div class="fr">
+      <div class="fg"><label>Instituição</label><input type="text" id="p-i"></div>
+      <div class="fg"><label>Ano</label><input type="number" id="p-a"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Total de acertos</label><input type="number" id="p-ac"></div>
+      <div class="fg"><label>Total de questões</label><input type="number" id="p-to"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Data de realização</label><input type="date" id="p-d"></div>
+      <div class="fg"><label>Tempo gasto</label><input type="text" id="p-te" placeholder="Ex: 2h 15min"></div>
+    </div>
+    <div class="sec-lbl">Questões e acertos por grande área (opcional)</div>
+    <div class="area-grid">
+      <div class="area-ir"><label style="color:var(--cl-t)">Clínica Médica</label><div class="fr"><input class="ri" type="number" id="pa-cl-q" placeholder="Q total"><input class="ri" type="number" id="pa-cl-a" placeholder="Acertos"></div></div>
+      <div class="area-ir"><label style="color:var(--ci-t)">Cirurgia Geral</label><div class="fr"><input class="ri" type="number" id="pa-ci-q" placeholder="Q total"><input class="ri" type="number" id="pa-ci-a" placeholder="Acertos"></div></div>
+      <div class="area-ir"><label style="color:var(--pe-t)">Pediatria</label><div class="fr"><input class="ri" type="number" id="pa-pe-q" placeholder="Q total"><input class="ri" type="number" id="pa-pe-a" placeholder="Acertos"></div></div>
+      <div class="area-ir"><label style="color:var(--gi-t)">Ginecologia e Obs.</label><div class="fr"><input class="ri" type="number" id="pa-gi-q" placeholder="Q total"><input class="ri" type="number" id="pa-gi-a" placeholder="Acertos"></div></div>
+      <div class="area-ir"><label style="color:var(--pr-t)">Preventiva e Social</label><div class="fr"><input class="ri" type="number" id="pa-pr-q" placeholder="Q total"><input class="ri" type="number" id="pa-pr-a" placeholder="Acertos"></div></div>
+    </div>
+    <div class="fg" style="margin-top:12px;"><label>Observações</label><textarea id="p-o"></textarea></div>
+    <div class="mf">
+      <button class="bd" id="p-del" style="display:none" onclick="delP()">Excluir</button>
+      <button class="bn" onclick="closeProvModal()">Cancelar</button>
+      <button class="bs" onclick="saveP()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== GIST SYNC =====================
+const GITHUB_TOKEN = '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';
+const GIST_FILENAME = 'estudos2026_data.json';
+let GIST_ID = localStorage.getItem('estudos2026_gist_id') || null;
+let syncTimer = null;
+let lastSaved = null;
+
+function setSyncStatus(status, text) {
+  const bar = document.getElementById('sync-bar');
+  const txt = document.getElementById('sync-txt');
+  bar.className = '';
+  bar.classList.add(status);
+  txt.textContent = text;
+}
+
+async function gistRequest(method, path, body) {
+  const res = await fetch('https://api.github.com' + path, {
+    method,
+    headers: {
+      'Authorization': 'token ' + GITHUB_TOKEN,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!res.ok) throw new Error('GitHub API error: ' + res.status);
+  return res.json();
+}
+
+async function createGist(data) {
+  const result = await gistRequest('POST', '/gists', {
+    description: 'Estudos 2026 - Dados de Estudo',
+    public: false,
+    files: { [GIST_FILENAME]: { content: JSON.stringify(data) } }
+  });
+  GIST_ID = result.id;
+  localStorage.setItem('estudos2026_gist_id', GIST_ID);
+  return GIST_ID;
+}
+
+async function updateGist(data) {
+  await gistRequest('PATCH', '/gists/' + GIST_ID, {
+    files: { [GIST_FILENAME]: { content: JSON.stringify(data) } }
+  });
+}
+
+async function loadFromGist() {
+  if (!GIST_ID) return null;
+  try {
+    const result = await gistRequest('GET', '/gists/' + GIST_ID);
+    const content = result.files[GIST_FILENAME]?.content;
+    return content ? JSON.parse(content) : null;
+  } catch(e) {
+    // Gist may have been deleted
+    GIST_ID = null;
+    localStorage.removeItem('estudos2026_gist_id');
+    return null;
+  }
+}
+
+async function syncToGist(data) {
+  setSyncStatus('saving', 'Salvando... ☁️');
+  try {
+    if (!GIST_ID) {
+      await createGist(data);
+    } else {
+      await updateGist(data);
+    }
+    lastSaved = Date.now();
+    setSyncStatus('saved', 'Sincronizado ✅');
+    setTimeout(() => setSyncStatus('', 'Sincronizado ☁️'), 3000);
+  } catch(e) {
+    setSyncStatus('error', 'Erro ao salvar ⚠️');
+  }
+}
+
+// ===================== CONSTANTS =====================
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const AREAS = ['cl','ci','pe','gi','pr'];
+const AREA_NAMES = {cl:'Clínica Médica',ci:'Cirurgia Geral',pe:'Pediatria',gi:'Ginecologia e Obs.',pr:'Preventiva e Social'};
+
+function aC(a){if(!a)return'';if(a.includes('Clínica'))return'cl';if(a.includes('Cirurgia'))return'ci';if(a.includes('Pediatria'))return'pe';if(a.includes('Ginecologia'))return'gi';if(a.includes('Preventiva')||a.includes('Social'))return'pr';return'';}
+function aN(a){return AREA_NAMES[aC(a)]||a||'';}
+function qtdQ(prev,k){const i=['1C','R1','R2','R3','R4'].indexOf(k);if(prev==='Alta prevalência')return[30,30,25,20,20][i]??20;if(prev==='Média prevalência')return[25,25,20,15,15][i]??15;if(prev==='Baixa prevalência')return[20,20,15,10,10][i]??10;return 15;}
+function addDays(base,d){const r=new Date(base+'T00:00:00');r.setDate(r.getDate()+d);return r.toISOString().split('T')[0];}
+function calcRev(base){if(!base)return{R1:'',R2:'',R3:'',R4:''};return{R1:addDays(base,7),R2:addDays(base,30),R3:addDays(base,60),R4:addDays(base,120)};}
+function recalc(t){if(!t.dataE)return;const d=calcRev(t.dataE);['R1','R2','R3','R4'].forEach(k=>t.rev[k].data=d[k]);}
+function fd(d){if(!d)return'—';return new Date(d+'T00:00:00').toLocaleDateString('pt-BR');}
+function pC(p){if(p===''||p===null||p===undefined)return'';const n=parseInt(p);return n>=70?'ph':n>=50?'pm':'pl';}
+function ptag(p){if(!p)return'';if(p.includes('Alta'))return'<span class="tag tag-al">Alta prev.</span>';if(p.includes('Média'))return'<span class="tag tag-me">Média prev.</span>';if(p.includes('Baixa'))return'<span class="tag tag-bx">Baixa prev.</span>';return'';}
+function isLate(d){return d&&new Date(d+'T00:00:00')<TODAY;}
+
+const TRAW=[
+  {id:1,name:"Atenção primária à saúde no Brasil",area:"Medicina Preventiva e Social",sub:"Saúde coletiva",prev:"Alta prevalência",subs:["Atenção primária à saúde","Estratégia de saúde da família","Medicina de família e comunidade"]},
+  {id:2,name:"Hipertensão arterial",area:"Clínica Médica",sub:"Cardiologia",prev:"Alta prevalência",subs:["Hipertensão arterial","Crise hipertensiva","Dissecção de aorta","Dislipidemias"]},
+  {id:3,name:"Trauma 1",area:"Cirurgia Geral",sub:"Cirurgia do trauma",prev:"Alta prevalência",subs:["Atendimento inicial ao politraumatizado","Choque hemorrágico","Vias aéreas"]},
+  {id:4,name:"Fisiologia menstrual",area:"Ginecologia e Obstetrícia",sub:"Ginecologia",prev:"Alta prevalência",subs:["Ciclo menstrual","Dismenorreia e dor pélvica crônica","Síndrome dos ovários policísticos"]},
+  {id:5,name:"Neonatologia 1",area:"Pediatria",sub:"Pediatria",prev:"Alta prevalência",subs:["Exame inicial do RN","Reanimação neonatal","Exames de triagem neonatal"]},
+  {id:6,name:"Neonatologia 2",area:"Pediatria",sub:"Pediatria",prev:"Média prevalência",subs:["Icterícia neonatal","Distúrbios respiratórios do RN","Infecção neonatal precoce e tardia"]},
+  {id:7,name:"Trauma 2",area:"Cirurgia Geral",sub:"Cirurgia do trauma",prev:"Alta prevalência",subs:["Trauma torácico","Trauma abdominal","Trauma cranioencefálico","Trauma raquimedular"]},
+  {id:8,name:"Neonatologia 3",area:"Pediatria",sub:"Pediatria",prev:"Média prevalência",subs:["Infecções congênitas","Alterações gastrointestinais: DRGE, estenose de piloro, malformações, enterocolite"]},
+  {id:9,name:"Trauma 3",area:"Cirurgia Geral",sub:"Cirurgia do trauma",prev:"Alta prevalência",subs:["Queimaduras"]},
+  {id:10,name:"SUS",area:"Medicina Preventiva e Social",sub:"Saúde coletiva",prev:"Alta prevalência",subs:["Histórico da saúde no Brasil","Gestão em saúde","Leis orgânicas de Saúde","Programas de provimentos médicos no Brasil","Sistema Único de Saúde","Sistema de Saúde Suplementar"]},
+  {id:11,name:"Síndromes coronarianas",area:"Clínica Médica",sub:"Cardiologia",prev:"Alta prevalência",subs:["Dor torácica","IAM","Doença coronariana crônica","Doenças do pericárdio"]},
+  {id:12,name:"Infecções genitais",area:"Ginecologia e Obstetrícia",sub:"Ginecologia",prev:"Alta prevalência",subs:["Cervicites","Doença inflamatória pélvica","Infecções sexualmente transmissíveis","Sífilis","Vulvovaginites"]},
+  {id:13,name:"Endocrinologia geral",area:"Clínica Médica",sub:"Endocrinologia",prev:"Alta prevalência",subs:["Doenças das paratireoides","Doenças das adrenais","Doenças da hipófise","Obesidade","Síndrome metabólica"]},
+  {id:14,name:"Pré-natal",area:"Ginecologia e Obstetrícia",sub:"Obstetrícia",prev:"Alta prevalência",subs:["Assistência pré-natal","Intercorrências no período pré-natal","Fisiologia da gestação","Modificações no organismo materno"]},
+  {id:15,name:"Crescimento e desenvolvimento",area:"Pediatria",sub:"Pediatria",prev:"Alta prevalência",subs:["Crescimento normal","Alterações de crescimento do lactente","Transtorno do espectro autista e TDAH","Desenvolvimento neuropsicomotor","Desenvolvimento puberal","Puberdade precoce"]},
+  {id:16,name:"Doenças reumatológicas 1",area:"Clínica Médica",sub:"Reumatologia",prev:"Baixa prevalência",subs:["Febre reumática","Lúpus","Gota","Síndrome de Sjögren","SAF","Vasculites"]},
+  {id:17,name:"Abdome agudo",area:"Cirurgia Geral",sub:"Cirurgia geral",prev:"Alta prevalência",subs:["Abdome agudo hemorrágico","Abdome agudo inflamatório: apendicite aguda","Abdome agudo inflamatório: colecistite e colangite aguda","Abdome agudo inflamatório: diverticulite aguda","Abdome agudo inflamatório: pancreatite aguda","Abdome agudo obstrutivo","Abdome agudo perfurativo","Abdome agudo vascular"]},
+  {id:18,name:"Anticoncepção",area:"Ginecologia e Obstetrícia",sub:"Ginecologia",prev:"Média prevalência",subs:["Anticoncepção: métodos comportamentais, barreira e intrauterinos","Anticoncepção com métodos hormonais: contraindicações e procedimentos cirúrgicos","Anticoncepção: métodos hormonais (fármacos)","Aborto legal"]},
+  {id:19,name:"Medicina baseada em evidências e bioestatística",area:"Medicina Preventiva e Social",sub:"Saúde coletiva",prev:"Média prevalência",subs:["Análise de métodos diagnósticos","MBE: introdução aos estudos epidemiológicos","MBE: tipos de estudos epidemiológicos","Medidas de associação e de impacto"]},
+  {id:20,name:"Distúrbios obstrutivos",area:"Clínica Médica",sub:"Pneumologia",prev:"Alta prevalência",subs:["Asma","Doença pulmonar obstrutiva crônica","Bronquiectasias","Fibrose cística","Apneia obstrutiva do sono"]},
+  {id:21,name:"Síndromes hemorrágicas da gestação",area:"Ginecologia e Obstetrícia",sub:"Obstetrícia",prev:"Alta prevalência",subs:["Sangramentos da primeira metade da gestação","Sangramentos da segunda metade da gestação","Abortamento legal e violência sexual"]},
+  {id:22,name:"Emergência em pediatria",area:"Pediatria",sub:"Pediatria",prev:"Alta prevalência",subs:["Intoxicações exógenas","Acidentes em pediatria","PCR em pediatria","Anafilaxia","Resiliência e maus tratos","Convulsões","Guillain-Barré"]},
+  {id:23,name:"Doenças neurológicas 1",area:"Clínica Médica",sub:"Neurologia",prev:"Média prevalência",subs:["Acidente vascular encefálico","Neuroanatomia","AIT","Hipertensão intracraniana"]},
+  {id:24,name:"Infecções respiratórias",area:"Clínica Médica",sub:"Pneumologia",prev:"Alta prevalência",subs:["Derrame pleural","Influenza e COVID-19","Pneumonia adquirida na comunidade (PAC)","Tuberculose"]},
+  {id:25,name:"Anestesia e cuidados pré/pós operatórios",area:"Cirurgia Geral",sub:"Cirurgia geral",prev:"Alta prevalência",subs:["Anestesia","Anestesia local","Complicações pós-operatórias","Cuidados pós-operatórios","Cuidados pré-operatórios"]},
+  {id:26,name:"Climatério e sangramento uterino anormal",area:"Ginecologia e Obstetrícia",sub:"Ginecologia",prev:"Média prevalência",subs:["Endometriose","Mioma uterino","Pólipo","Climatério"]},
+  {id:27,name:"Amenorreias",area:"Ginecologia e Obstetrícia",sub:"Ginecologia",prev:"Média prevalência",subs:["Amenorreia primária","Amenorreia secundária"]},
+  {id:28,name:"Imunizações",area:"Pediatria",sub:"Pediatria",prev:"Alta prevalência",subs:["Imunizações"]},
+  {id:29,name:"Anemias",area:"Clínica Médica",sub:"Hematologia",prev:"Alta prevalência",subs:["Anemia aplásica","Anemia ferropriva","Anemia megaloblástica","Esferocitose","Talassemias","Anemia falciforme"]},
+  {id:30,name:"Aleitamento materno e nutrição",area:"Pediatria",sub:"Pediatria",prev:"Alta prevalência",subs:["Aleitamento materno e introdução de alimentação complementar","Anemias carenciais","Deficiência e excessos de vitaminas","Desnutrição energético-proteica"]},
+  {id:31,name:"TEMA CORINGA 1",area:"",sub:"",prev:"",subs:["Atrasou algo? Insira aqui","Está em dia? Adiante alguma matéria"]},
+  {id:32,name:"Hemorragia digestiva",area:"Cirurgia Geral",sub:"Cirurgia geral",prev:"Alta prevalência",subs:["Hemorragia digestiva alta não varicosa","Hemorragia digestiva alta varicosa","Hemorragia digestiva baixa"]},
+  {id:33,name:"ICC e valvulopatias",area:"Clínica Médica",sub:"Cardiologia",prev:"Média prevalência",subs:["Insuficiência cardíaca aguda descompensada","Insuficiência cardíaca: conceitos e tratamentos","Miocardite e miocardiopatia","Valvopatias aórticas","Valvopatias mitrais"]},
+  {id:34,name:"Cardiopatias congênitas",area:"Pediatria",sub:"Pediatria",prev:"Média prevalência",subs:["Cardiopatias congênitas cianóticas","Cardiopatias congênitas acianóticas"]},
+  {id:35,name:"Esôfago",area:"Cirurgia Geral",sub:"Gastroenterologia",prev:"Alta prevalência",subs:["DRGE: fisiopatologia, epidemiologia e diagnóstico","DRGE: tratamento clínico, cirúrgico, complicações e esôfago de Barrett","Câncer de esôfago: epidemiologia, fatores de risco e diagnóstico","Câncer de esôfago: estadiamento e tratamento","Afecções motoras do esôfago"]},
+  {id:36,name:"Estômago",area:"Cirurgia Geral",sub:"Gastroenterologia",prev:"Alta prevalência",subs:["Neoplasia gástrica benigna e maligna","Doença ulcerosa péptica","Helicobacter pylori: indicações de erradicação","Tratamento cirúrgico da obesidade e cirurgia metabólica","Síndromes pós-operatórias gástricas","Tumor gastrointestinal: GIST, linfoma e carcinoma"]},
+  {id:37,name:"Vitalidade fetal",area:"Ginecologia e Obstetrícia",sub:"Obstetrícia",prev:"Média prevalência",subs:["Vitalidade fetal — Cardiotocografia","Perfil biofísico fetal, Dopplervelocimetria","Restrição do crescimento intrauterino","Amniorrexis prematura"]},
+  {id:38,name:"Patologias da gestação 1",area:"Ginecologia e Obstetrícia",sub:"Obstetrícia",prev:"Alta prevalência",subs:["Complicações de pré-eclâmpsia","Diabetes mellitus e gestação","Síndromes hipertensivas na gestação","Incompetência istmocervical"]},
+  {id:39,name:"Parto",area:"Ginecologia e Obstetrícia",sub:"Obstetrícia",prev:"Média prevalência",subs:["Bacia obstétrica","Estática fetal","Tocurgia","Forcipes","Cesariana — indicações","Assistência clínica ao parto (1º, 2º, 3º e 4º períodos)","Mecanismo de parto","Hemorragia puerperal","Puerpério"]},
+  {id:40,name:"Doenças respiratórias da infância",area:"Pediatria",sub:"Pediatria",prev:"Média prevalência",subs:["Coqueluche","IVAS","Bronquiolite","Otite e obstrução aguda inflamatória (Crupe)","Pneumonia comunitária — Pediatria","Asma"]},
+  {id:41,name:"Neoplasia pulmonar",area:"Clínica Médica",sub:"Pneumologia",prev:"Baixa prevalência",subs:["Neoplasias pulmonares","Tabagismo"]},
+  {id:42,name:"Diabetes mellitus",area:"Clínica Médica",sub:"Endocrinologia",prev:"Alta prevalência",subs:["Diabetes mellitus: tratamento","Diabetes mellitus: fisiopatologia, classificação e diagnóstico","Complicações crônicas do diabetes mellitus","Complicações agudas do diabetes mellitus"]},
+  {id:43,name:"Epidemiologia",area:"Medicina Preventiva e Social",sub:"Saúde coletiva",prev:"Média prevalência",subs:["Adoecimento e epidemiologia das doenças infecciosas","Indicadores epidemiológicos","Introdução ao método epidemiológico","Medidas de frequência: principais indicadores em saúde","Transição epidemiológica, demográfica e nutricional","Vigilância em saúde com ênfase em vigilância epidemiológica"]},
+  {id:44,name:"TEMA CORINGA 2",area:"",sub:"",prev:"",subs:["Atrasou algo? Insira aqui","Está em dia? Adiante algum tema"]},
+  {id:45,name:"Via biliar",area:"Cirurgia Geral",sub:"Gastroenterologia",prev:"Alta prevalência",subs:["Afecções da vesícula e vias biliares","Colecistopatia calculosa e suas complicações","Icterícia obstrutiva e coledocolitíase"]},
+  {id:46,name:"Fígado",area:"Cirurgia Geral",sub:"Gastroenterologia",prev:"Alta prevalência",subs:["Cirrose hepática e suas complicações","Hipertensão portal","Cistos e abscessos hepáticos","Transplante hepático","Tumores hepáticos benignos","Tumores hepáticos malignos"]},
+  {id:47,name:"Tireoide",area:"Clínica Médica",sub:"Endocrinologia",prev:"Alta prevalência",subs:["Hipotireoidismo","Nódulos e câncer de tireoide","Tireotoxicose"]},
+  {id:48,name:"Hérnias",area:"Cirurgia Geral",sub:"Cirurgia geral",prev:"Alta prevalência",subs:["Hérnias"]},
+  {id:49,name:"PCR e arritmias",area:"Clínica Médica",sub:"Cardiologia",prev:"Alta prevalência",subs:["Arritmias cardíacas: fibrilação atrial","Arritmias cardíacas e outras taquiarritmias e bradiarritmias","Parada cardiorrespiratória","Síncope"]},
+  {id:50,name:"Infecções urológicas",area:"Cirurgia Geral",sub:"Urologia",prev:"Baixa prevalência",subs:["Cistite aguda","Pielonefrite aguda","Litíase urinária"]},
+  {id:51,name:"Equilíbrio ácido-básico e intoxicações",area:"Clínica Médica",sub:"Medicina intensiva",prev:"Baixa prevalência",subs:["Distúrbios do equilíbrio acidobásico","Distúrbios iônicos — sódio, potássio, cálcio e fósforo","Intoxicações exógenas agudas"]},
+  {id:52,name:"UTI",area:"Clínica Médica",sub:"Medicina intensiva",prev:"Baixa prevalência",subs:["Drogas vasoativas","Sepse","Insuficiência respiratória","Ventilação mecânica e desmame ventilatório","Via aérea: dispositivos para suporte na insuficiência respiratória"]},
+  {id:53,name:"Injúria renal aguda e crônica",area:"Clínica Médica",sub:"Nefrologia",prev:"Média prevalência",subs:["Doença renal crônica","Injúria renal aguda (IRA)"]},
+  {id:54,name:"Síndromes hepatofebris",area:"Clínica Médica",sub:"Infectologia",prev:"Alta prevalência",subs:["Arboviroses","Febre amarela","Febre tifóide","Hepatites virais","Leptospirose","Malária"]},
+  {id:55,name:"Doenças exantemáticas",area:"Pediatria",sub:"Pediatria",prev:"Média prevalência",subs:["Doenças exantemáticas da infância"]},
+  {id:56,name:"Outras doenças em infectologia",area:"Clínica Médica",sub:"Infectologia",prev:"Baixa prevalência",subs:["Acidentes por animais peçonhentos","Parasitoses intestinais","Paracoccidioidomicose","Imunizações e terapia pós-exposição"]},
+  {id:57,name:"Doenças do intestino e reto",area:"Cirurgia Geral",sub:"Gastroenterologia",prev:"Alta prevalência",subs:["Doença diverticular dos cólons","Megacólon","Doença polipoide","Doenças inflamatórias intestinais: fisiopatologia, epidemiologia e diagnóstico","Doenças inflamatórias intestinais: manifestações extraintestinais e tratamento","Doenças orificiais"]},
+  {id:58,name:"Neoplasias do intestino, reto e canal anal",area:"Cirurgia Geral",sub:"Gastroenterologia",prev:"Média prevalência",subs:["Neoplasias do intestino delgado","Câncer de cólon e reto: etiopatogenia e diagnóstico","Câncer de cólon e reto: estadiamento e tratamento","Câncer de canal anal"]},
+  {id:59,name:"Doenças gastrointestinais na infância",area:"Pediatria",sub:"Pediatria",prev:"Média prevalência",subs:["Diarreia aguda e desidratação","Síndrome hemolítico urêmica","Diarreia crônica, distúrbios do sódio","Alergia alimentar","Tumor de Wilms / nefroblastoma"]},
+  {id:60,name:"Hemostasia e trombose",area:"Clínica Médica",sub:"Hematologia",prev:"Média prevalência",subs:["Distúrbios da hemostasia primária","Distúrbios da hemostasia secundária e terciária","Trombofilias"]},
+  {id:61,name:"Atuação médica",area:"Medicina Preventiva e Social",sub:"Saúde coletiva",prev:"Média prevalência",subs:["Classificações internacionais de doenças","Ética médica","Medicina do trabalho: patologia ocupacional","Medicina legal","Medicina do trabalho: saúde do trabalhador"]},
+  {id:62,name:"Reparação tecidual",area:"Cirurgia Geral",sub:"Cirurgia geral",prev:"Média prevalência",subs:["Cicatrização","Resposta metabólica ao trauma","Enxertos de pele","Retalhos","Suturas e feridas"]},
+  {id:63,name:"Pâncreas",area:"Cirurgia Geral",sub:"Gastroenterologia",prev:"Média prevalência",subs:["Tumores císticos do pâncreas","Tumores neuroendócrinos do pâncreas","Tumores pancreáticos e periampulares","Pancreatite crônica"]},
+  {id:64,name:"Leucemias",area:"Clínica Médica",sub:"Hematologia",prev:"Média prevalência",subs:["Leucemias agudas","Leucemias crônicas","Linfomas","Mieloma múltiplo","Neoplasias mieloproliferativas — não LMC"]},
+  {id:65,name:"Infertilidade",area:"Ginecologia e Obstetrícia",sub:"Ginecologia",prev:"Baixa prevalência",subs:["Infertilidade: definições e causas","Infertilidade: investigação e tratamento"]},
+  {id:66,name:"Neoplasias do ovário e vulva",area:"Ginecologia e Obstetrícia",sub:"Ginecologia",prev:"Média prevalência",subs:["Câncer de ovário","Doenças benignas dos ovários","Neoplasias da vulva","Patologias pré-neoplásicas e câncer de endométrio"]},
+  {id:67,name:"Dermatologia",area:"Clínica Médica",sub:"Dermatologia",prev:"Baixa prevalência",subs:["Tumores dermatológicos","Doenças eczematosas","Farmacodermias","Doenças infectocontagiosas — protozoários e parasita"]},
+  {id:68,name:"Patologias na gestação 2",area:"Ginecologia e Obstetrícia",sub:"Obstetrícia",prev:"Média prevalência",subs:["Gestação gemelar","Oligodrâmnio e Polidrâmnio","Pós-datismo e gestação prolongada","Aloimunização na gestação","Prematuridade","HIV na gestação","Sífilis na gestação"]},
+  {id:69,name:"HIV e doenças bacterianas",area:"Clínica Médica",sub:"Infectologia",prev:"Baixa prevalência",subs:["HIV/AIDS","Hanseníase","Endocardite infecciosa","Meningoencefalites"]},
+  {id:70,name:"Doenças reumatológicas 2",area:"Clínica Médica",sub:"Reumatologia",prev:"Baixa prevalência",subs:["Artrite idiopática juvenil (AIJ)","Artrite reumatoide (AR)","Artrites infecciosas","Espondiloartrites","Doença de Still no adulto"]},
+  {id:71,name:"Ortopedia",area:"Cirurgia Geral",sub:"Ortopedia",prev:"Baixa prevalência",subs:["Classificações de fraturas","Infecção osteoarticular","Tumores ósseos e Lesões pseudotumorais","Ortopedia pediátrica"]},
+  {id:72,name:"Doenças em urologia",area:"Cirurgia Geral",sub:"Urologia",prev:"Baixa prevalência",subs:["Disfunção erétil","Hiperplasia prostática benigna","Bexiga hiperativa","Bexiga neurogênica","Incontinência urinária de esforço","Trauma geniturinário","Urologia pediátrica"]},
+  {id:73,name:"Neoplasias em urologia",area:"Cirurgia Geral",sub:"Urologia",prev:"Baixa prevalência",subs:["Neoplasia de bexiga","Neoplasia de próstata","Neoplasia de testículo","Neoplasia renal","Doenças císticas dos rins"]},
+  {id:74,name:"Psiquiatria",area:"Clínica Médica",sub:"Psiquiatria",prev:"Baixa prevalência",subs:["Esquizofrenia e outros transtornos psicóticos","Transtornos alimentares","Transtornos de ansiedade","Transtornos de personalidade","Transtornos do humor","Transtornos por abuso de substâncias","Transtornos mentais orgânicos","Transtornos somatoformes, dissociativos e factícios","Psiquiatria infantil"]},
+  {id:75,name:"Cirurgia vascular",area:"Cirurgia Geral",sub:"Cirurgia vascular",prev:"Baixa prevalência",subs:["Obstrução arterial aguda","Obstrução arterial crônica de membros inferiores","Trombose venosa profunda","Insuficiência venosa crônica","Aneurismas"]},
+  {id:76,name:"Cirurgia pediátrica",area:"Cirurgia Geral",sub:"Cirurgia pediátrica",prev:"Baixa prevalência",subs:["Apendicite aguda","Divertículo de Meckel","Intussuscepção intestinal","Hérnias inguinais e umbilicais","Massas cervicais","Fimose"]},
+  {id:77,name:"Otorrinolaringologia",area:"Clínica Médica",sub:"Otorrinolaringologia",prev:"Baixa prevalência",subs:["Anatomia em otorrinolaringologia","Métodos diagnósticos em otorrinolaringologia","Outras doenças de cabeça e pescoço","Otologia e rinologia"]},
+  {id:78,name:"Oftalmologia",area:"Clínica Médica",sub:"Oftalmologia",prev:"Baixa prevalência",subs:["Conceitos gerais","Conjuntiva","Córnea","Cristalino","Glaucoma","Órbita","Retina"]},
+  {id:79,name:"Geriatria",area:"Clínica Médica",sub:"Geriatria",prev:"Baixa prevalência",subs:["Fragilidade e síndrome da imobilização","Instabilidade postural e quedas","Polifarmácia","Promoção à saúde e vacinação","Violência e maus-tratos contra os idosos"]},
+  {id:80,name:"HPV e Câncer de Colo Uterino",area:"Ginecologia e Obstetrícia",sub:"Ginecologia",prev:"Alta prevalência",subs:["HPV e NIC: colo uterino normal","HPV e NIC: conduta nos achados anormais do Papanicolaou","HPV e NIC: prática e vacinação para o HPV","Câncer de colo uterino"]},
+  {id:81,name:"Mastologia",area:"Ginecologia e Obstetrícia",sub:"Ginecologia",prev:"Média prevalência",subs:["Câncer de mama: fatores de risco e diagnóstico","Câncer de mama: tratamento","Doenças benignas da mama","Exames complementares em mastologia"]},
+  {id:82,name:"Uroginecologia",area:"Ginecologia e Obstetrícia",sub:"Ginecologia",prev:"Média prevalência",subs:["Distopias genitais","Incontinência urinária"]},
+  {id:83,name:"Doenças neurológicas 2",area:"Clínica Médica",sub:"Neurologia",prev:"Baixa prevalência",subs:["Cefaleia","Transtornos epilépticos","Doença cerebrovascular","Distúrbios do movimento","Delirium","Demências"]},
+  {id:84,name:"Doenças renais",area:"Clínica Médica",sub:"Nefrologia",prev:"Alta prevalência",subs:["Doenças glomerulares","Síndrome nefrítica","Síndrome nefrótica","Doenças tubulointersticiais"]},
+  {id:85,name:"Antibióticos",area:"Clínica Médica",sub:"Infectologia",prev:"",subs:[]},
+];
+const seen={};
+const TOPS=TRAW.filter(t=>{if(seen[t.name])return false;seen[t.name]=true;return true;});
+let nextId=Math.max(...TOPS.map(t=>t.id))+1;
+
+let S={
+  topics:TOPS.map(t=>({...t,done:false,dataE:'',schedDate:'',sOk:[],rev:{'1C':{data:'',nq:'',pct:''},'R1':{data:'',nq:'',pct:''},'R2':{data:'',nq:'',pct:''},'R3':{data:'',nq:'',pct:''},'R4':{data:'',nq:'',pct:''}}})),
+  provas:[],calEvents:[],
+  calY:TODAY.getFullYear(),calM:TODAY.getMonth(),
+  allExp:false,epIdx:null,ecpIdx:null,editTemaId:null,
+  activeFils:new Set(),dF:'todos'
+};
+
+function getPayload(){
+  return{
+    ts:S.topics.map(t=>({id:t.id,name:t.name,area:t.area,sub:t.sub,prev:t.prev,subs:t.subs,done:t.done,dataE:t.dataE,schedDate:t.schedDate,sOk:t.sOk,rev:t.rev,custom:t.custom||false})),
+    pr:S.provas,ce:S.calEvents,nid:nextId
+  };
+}
+function applyPayload(p){
+  if(p.ts)p.ts.forEach(ts=>{
+    let t=S.topics.find(x=>x.id===ts.id);
+    if(!t&&ts.custom){t={id:ts.id,name:ts.name,area:ts.area,sub:ts.sub,prev:ts.prev,subs:ts.subs||[],done:false,dataE:'',schedDate:'',sOk:[],custom:true,rev:{'1C':{data:'',nq:'',pct:''},'R1':{data:'',nq:'',pct:''},'R2':{data:'',nq:'',pct:''},'R3':{data:'',nq:'',pct:''},'R4':{data:'',nq:'',pct:''}}};S.topics.push(t);}
+    if(t){t.done=ts.done;t.dataE=ts.dataE||'';t.schedDate=ts.schedDate||'';t.sOk=ts.sOk||[];t.rev=ts.rev||t.rev;if(ts.name)t.name=ts.name;if(ts.subs)t.subs=ts.subs;if(ts.area!==undefined)t.area=ts.area;if(ts.sub!==undefined)t.sub=ts.sub;if(ts.prev!==undefined)t.prev=ts.prev;}
+  });
+  if(p.pr)S.provas=p.pr;
+  if(p.ce)S.calEvents=p.ce;
+  if(p.nid)nextId=p.nid;
+}
+
+async function load(){
+  setSyncStatus('saving','Carregando... ☁️');
+  try{
+    const data=await loadFromGist();
+    if(data){applyPayload(data);}
+    setSyncStatus('saved','Sincronizado ✅');
+    setTimeout(()=>setSyncStatus('','Sincronizado ☁️'),2000);
+  }catch(e){
+    setSyncStatus('error','Sem conexão ⚠️');
+  }
+  rT();rProv();
+}
+
+function sv(){
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(()=>syncToGist(getPayload()),1200);
+}
+
+// TABS
+function goTab(n){
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['cron','rev','desemp','cal','prov'][i]===n));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+n).classList.add('active');
+  if(n==='rev')rRev();if(n==='desemp')rDesemp();if(n==='cal')rCal();if(n==='prov')rProv();
+}
+
+// CRONOGRAMA
+function togF(f,b){b.classList.toggle('on');if(S.activeFils.has(f))S.activeFils.delete(f);else S.activeFils.add(f);rT();}
+function togAll(){S.allExp=!S.allExp;document.querySelectorAll('.tc').forEach(c=>c.classList.toggle('exp',S.allExp));document.querySelector('#page-cron .bsm').textContent=S.allExp?'Recolher todos':'Expandir todos';}
+function topicMatch(t){
+  const q=document.getElementById('srch').value.toLowerCase();
+  const ms=!q||t.name.toLowerCase().includes(q)||t.sub.toLowerCase().includes(q)||t.area.toLowerCase().includes(q);
+  if(!ms)return false;
+  if(!S.activeFils.size)return true;
+  const ac=aC(t.area);
+  const tLate=!t.done&&t.schedDate&&isLate(t.schedDate);
+  const hasDone=S.activeFils.has('done'),hasPend=S.activeFils.has('pend'),hasLate=S.activeFils.has('late');
+  const hasArea=AREAS.some(a=>S.activeFils.has(a));
+  const hasPrev=S.activeFils.has('al')||S.activeFils.has('me')||S.activeFils.has('bx');
+  let ok=true;
+  if(hasDone||hasPend||hasLate)ok=ok&&((hasDone&&t.done)||(hasPend&&!t.done&&!tLate)||(hasLate&&tLate));
+  if(hasArea)ok=ok&&AREAS.some(a=>S.activeFils.has(a)&&ac===a);
+  if(hasPrev)ok=ok&&((S.activeFils.has('al')&&t.prev.includes('Alta'))||(S.activeFils.has('me')&&t.prev.includes('Média'))||(S.activeFils.has('bx')&&t.prev.includes('Baixa')));
+  return ok;
+}
+function rT(){
+  const tps=S.topics.filter(topicMatch);
+  document.getElementById('tgrid').innerHTML=tps.map(t=>{
+    const ac=aC(t.area);const isSched=t.schedDate&&!t.done;const tLate=!t.done&&t.schedDate&&isLate(t.schedDate);
+    return`<div class="tc ${t.done?'done':tLate?'late-c':isSched?'sched':''} ${S.allExp?'exp':''}" id="tc-${t.id}" onclick="togCard(${t.id},event)">
+      <div class="tc-h"><div class="tc-ti">${t.name}</div><div class="tc-btns">
+        <div class="edit-btn" onclick="openEditTema(${t.id},event)" title="Editar">✏️</div>
+        <div class="ck ${t.done?'on':''}" onclick="togDone(${t.id},event)"></div>
+      </div></div>
+      <div class="tc-m">
+        ${t.area?`<span class="tag tag-${ac||'sb'}">${aN(t.area)}</span>`:''}
+        ${ptag(t.prev)}
+        ${tLate?`<span class="tag tag-al">⚠️ Atrasado</span>`:isSched?`<span class="tag" style="background:#FFF8D0;color:#8B6800;border-color:var(--am);">📅 ${fd(t.schedDate)}</span>`:''}
+      </div>
+      ${t.done?`<div class="tc-d"><span style="color:var(--txs)">Data do estudo:</span>
+        <input class="di" type="date" value="${t.dataE}" onchange="setDE(${t.id},this.value)" onclick="event.stopPropagation()" style="margin-left:4px;">
+        ${t.dataE&&t.rev.R1.data?`<span class="tag tag-pr" style="font-size:10px;">R1: ${fd(t.rev.R1.data)}</span>`:''}
+      </div>`:''}
+      ${t.subs.length?`<div class="tc-s"><ul>${t.subs.map((s,i)=>`<li>
+        <div class="sk ${t.sOk.includes(i)?'on':''}" onclick="togSub(${t.id},${i},event)"></div>
+        <span style="${t.sOk.includes(i)?'text-decoration:line-through;opacity:.5;':''}">${s}</span>
+      </li>`).join('')}</ul></div>`:``}
+    </div>`;
+  }).join('');
+  updStats();
+}
+function togCard(id,e){if(['ck','sk','di','edit-btn'].some(c=>e.target.classList.contains(c)))return;document.getElementById('tc-'+id)?.classList.toggle('exp');}
+function togDone(id,e){e.stopPropagation();const t=S.topics.find(x=>x.id===id);t.done=!t.done;if(t.done&&!t.dataE){t.dataE=t.schedDate||TODAY.toISOString().split('T')[0];t.rev['1C'].data=t.dataE;recalc(t);}sv();rT();if(document.getElementById('page-cal').classList.contains('active'))rCal();}
+function setDE(id,val){const t=S.topics.find(x=>x.id===id);t.dataE=val;t.rev['1C'].data=val;recalc(t);sv();rT();if(document.getElementById('page-rev').classList.contains('active'))rRev();if(document.getElementById('page-cal').classList.contains('active'))rCal();}
+function togSub(id,idx,e){e.stopPropagation();const t=S.topics.find(x=>x.id===id);const i=t.sOk.indexOf(idx);if(i>=0)t.sOk.splice(i,1);else t.sOk.push(idx);sv();rT();}
+function updStats(){
+  const total=S.topics.length,done=S.topics.filter(t=>t.done).length;
+  const revs=S.topics.reduce((a,t)=>a+['1C','R1','R2','R3','R4'].filter(k=>t.rev[k].nq).length,0);
+  document.getElementById('stt').textContent=total;document.getElementById('stf').textContent=done;
+  document.getElementById('str').textContent=revs;document.getElementById('stp').textContent=Math.round(done/total*100)+'%';
+  const lc=getLateItems().length;const bdg=document.getElementById('bdg');
+  if(lc>0){bdg.textContent=lc;bdg.classList.add('show');}else bdg.classList.remove('show');
+}
+function getLateItems(){
+  const items=[];
+  S.topics.forEach(t=>{
+    if(!t.done&&t.schedDate&&isLate(t.schedDate))items.push({name:t.name,date:t.schedDate});
+    if(t.done)['R1','R2','R3','R4'].forEach(k=>{const r=t.rev[k];if(r.data&&isLate(r.data)&&!r.nq)items.push({name:`${k}: ${t.name}`,date:r.data});});
+  });
+  return items.sort((a,b)=>a.date.localeCompare(b.date));
+}
+
+// EDIT TEMA
+function openEditTema(id,e){e.stopPropagation();const t=S.topics.find(x=>x.id===id);S.editTemaId=id;document.getElementById('edit-modal-title').textContent='Editar Tema';document.getElementById('em-name').value=t.name;document.getElementById('em-area').value=t.area||'';document.getElementById('em-sub').value=t.sub||'';document.getElementById('em-prev').value=t.prev||'';document.getElementById('em-del').style.display='block';buildSubList(t.subs||[]);document.getElementById('edit-modal').classList.add('open');}
+function openNewTema(){S.editTemaId=null;document.getElementById('edit-modal-title').textContent='Novo Tema';document.getElementById('em-name').value='';document.getElementById('em-area').value='';document.getElementById('em-sub').value='';document.getElementById('em-prev').value='';document.getElementById('em-del').style.display='none';buildSubList([]);document.getElementById('edit-modal').classList.add('open');}
+function buildSubList(subs){document.getElementById('em-subs').innerHTML=subs.map(s=>`<li><input type="text" value="${s.replace(/"/g,'&quot;')}"><button class="sub-del" onclick="this.closest('li').remove()">✕</button></li>`).join('');}
+function addSubRow(){const li=document.createElement('li');li.innerHTML=`<input type="text" placeholder="Nome do subtópico"><button class="sub-del" onclick="this.closest('li').remove()">✕</button>`;document.getElementById('em-subs').appendChild(li);}
+function saveTema(){const name=document.getElementById('em-name').value.trim();if(!name)return;const area=document.getElementById('em-area').value;const sub=document.getElementById('em-sub').value.trim();const prev=document.getElementById('em-prev').value;const subs=[...document.getElementById('em-subs').querySelectorAll('input')].map(i=>i.value.trim()).filter(Boolean);if(S.editTemaId!==null){const t=S.topics.find(x=>x.id===S.editTemaId);t.name=name;t.area=area;t.sub=sub;t.prev=prev;t.subs=subs;}else{S.topics.push({id:nextId++,name,area,sub,prev,subs,done:false,dataE:'',schedDate:'',sOk:[],custom:true,rev:{'1C':{data:'',nq:'',pct:''},'R1':{data:'',nq:'',pct:''},'R2':{data:'',nq:'',pct:''},'R3':{data:'',nq:'',pct:''},'R4':{data:'',nq:'',pct:''}}});}sv();closeEditModal();rT();}
+function deleteTema(){if(!S.editTemaId)return;if(!confirm('Excluir este tema?'))return;S.topics=S.topics.filter(x=>x.id!==S.editTemaId);sv();closeEditModal();rT();}
+function closeEditModal(){document.getElementById('edit-modal').classList.remove('open');}
+
+// REVISÕES
+function rRev(){
+  const tps=S.topics.filter(t=>t.done);const tb=document.getElementById('rtbody');
+  if(!tps.length){tb.innerHTML=`<tr><td colspan="13" style="text-align:center;padding:36px;color:var(--txs);">📚 Marque temas como feitos para ver as revisões!</td></tr>`;return;}
+  const KS=['1C','R1','R2','R3','R4'];
+  tb.innerHTML=tps.map(t=>{
+    const ac=aC(t.area);
+    const cols=KS.map(k=>{const r=t.rev[k];const qtd=t.prev?qtdQ(t.prev,k):'—';const late=r.data&&isLate(r.data)&&!r.nq;const bg=late?'background:#FFF5F5;':'';
+      return`<td style="${bg}"><input class="di" type="date" value="${r.data||''}" onchange="sRD(${t.id},'${k}',this.value)" style="width:116px;"></td>
+      <td style="${bg}"><div style="display:flex;gap:3px;align-items:center;">
+        <input class="ri" type="number" value="${r.nq||''}" min="0" placeholder="${qtd}" onchange="sRF(${t.id},'${k}','nq',this.value)">
+        <span style="font-size:10px;color:var(--txs);">/</span>
+        <input class="ri" type="number" value="${r.pct||''}" min="0" max="100" placeholder="%" onchange="sRF(${t.id},'${k}','pct',this.value)">
+        ${r.pct?`<span class="pd ${pC(r.pct)}">${r.pct}%</span>`:''}
+      </div>${r.pct?`<div class="pm2"><div class="pm2f" style="width:${Math.min(parseInt(r.pct),100)}%"></div></div>`:''}</td>`;
+    }).join('');
+    return`<tr><td style="font-weight:600;max-width:170px;font-size:12px;">${t.name}</td><td>${t.area?`<span class="tag tag-${ac||'sb'}" style="font-size:10px;">${aN(t.area)}</span>`:''}</td><td>${ptag(t.prev)}</td>${cols}</tr>`;
+  }).join('');
+}
+function sRD(id,k,val){const t=S.topics.find(x=>x.id===id);t.rev[k].data=val;if(k==='1C'){t.dataE=val;recalc(t);rT();}sv();rRev();if(document.getElementById('page-cal').classList.contains('active'))rCal();}
+function sRF(id,k,f,val){const t=S.topics.find(x=>x.id===id);t.rev[k][f]=val;sv();updStats();if(document.getElementById('page-desemp').classList.contains('active'))rDesemp();}
+
+// DESEMPENHO
+let dF='todos';
+function sDF(f,b){dF=f;document.querySelectorAll('#page-desemp .fb').forEach(x=>x.classList.remove('on'));b.classList.add('on');rDesemp();}
+function rDesemp(){
+  const KS=['1C','R1','R2','R3','R4'];
+  let tps=S.topics.filter(t=>t.done&&KS.some(k=>t.rev[k].nq));
+  if(dF!=='todos')tps=tps.filter(t=>aC(t.area)===dF);
+  let gQ=0,gAc=0,gCP=0;
+  const allT=dF==='todos'?S.topics:S.topics.filter(t=>aC(t.area)===dF);
+  allT.forEach(t=>KS.forEach(k=>{const r=t.rev[k];const nq=parseInt(r.nq)||0;if(nq){gQ+=nq;if(r.pct){gAc+=Math.round(nq*parseInt(r.pct)/100);gCP+=nq;}}}));
+  S.provas.forEach(p=>{if(dF==='todos'){const q=parseInt(p.total)||0,a=parseInt(p.acertos)||0;if(q){gQ+=q;gAc+=a;gCP+=q;}}else{if(p.areas&&p.areas[dF]){const q=parseInt(p.areas[dF].q)||0,a=parseInt(p.areas[dF].a)||0;if(q){gQ+=q;gAc+=a;gCP+=q;}}}});
+  const gPct=gCP>0?Math.round(gAc/gCP*100):null;
+  document.getElementById('d-tq').textContent=gQ.toLocaleString('pt-BR');
+  document.getElementById('d-pct').textContent=gPct!==null?gPct+'%':'—';
+  document.getElementById('d-bar').style.width=(gPct||0)+'%';
+  document.getElementById('d-tq-lbl').textContent=dF==='todos'?'Total de questões feitas':`Questões — ${AREA_NAMES[dF]}`;
+  document.getElementById('d-pct-lbl').textContent=dF==='todos'?'% médio de acerto':`% acerto — ${AREA_NAMES[dF]}`;
+  const tb=document.getElementById('dtbody');
+  if(!tps.length){tb.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--txs);">Nenhum dado${dF!=='todos'?' para esta área':''}.</td></tr>`;}
+  else tb.innerHTML=tps.map(t=>{
+    const ac=aC(t.area);let tQ=0,tAc=0,tCP=0;
+    KS.forEach(k=>{const r=t.rev[k];const nq=parseInt(r.nq)||0;if(nq){tQ+=nq;if(r.pct){tAc+=Math.round(nq*parseInt(r.pct)/100);tCP+=nq;}}});
+    const tPct=tCP>0?Math.round(tAc/tCP*100):null;
+    return`<tr><td style="font-weight:600;font-size:12px;">${t.name}</td><td>${t.area?`<span class="tag tag-${ac||'sb'}" style="font-size:10px;">${aN(t.area)}</span>`:''}</td><td>${ptag(t.prev)}</td><td style="font-weight:700;">${tQ||'—'}</td><td><span class="pd ${tPct!==null?pC(tPct):''}">${tPct!==null?tPct+'%':'—'}</span>${tPct!==null?`<div class="pm2"><div class="pm2f" style="width:${tPct}%"></div></div>`:''}</td></tr>`;
+  }).join('');
+  const filtP=dF==='todos'?S.provas:S.provas.filter(p=>p.areas&&p.areas[dF]&&(p.areas[dF].q||p.areas[dF].a));
+  const tb2=document.getElementById('dtbody-prov');
+  if(!filtP.length){tb2.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--txs);">Nenhuma prova registrada${dF!=='todos'?' com dados para esta área':''}.</td></tr>`;}
+  else tb2.innerHTML=filtP.map((p,i)=>{
+    const q=parseInt(p.total)||0,a=parseInt(p.acertos)||0;const pct=q>0?Math.round(a/q*100):null;
+    const ac2=AREAS.map(ar=>{if(!p.areas||!p.areas[ar])return`<td style="color:var(--txs);font-size:11px;text-align:center;">—</td>`;const aq=parseInt(p.areas[ar].q)||0,aa=parseInt(p.areas[ar].a)||0;const ap=aq>0?Math.round(aa/aq*100):null;return`<td><span style="font-size:12px;font-weight:600;">${aa}/${aq}</span>${ap!==null?` <span class="pd ${pC(ap)}">${ap}%</span>`:''}</td>`;}).join('');
+    return`<tr><td style="font-weight:600;font-size:12px;">${p.nome||'Prova'}</td><td><span class="tag tag-cl" style="font-size:10px;">${fd(p.data)}</span></td><td style="font-weight:700;">${q||'—'}</td><td>${a||'—'}</td><td><span class="pd ${pct!==null?pC(pct):''}">${pct!==null?pct+'%':'—'}</span>${pct!==null?`<div class="pm2"><div class="pm2f" style="width:${pct}%"></div></div>`:''}</td>${ac2}</tr>`;
+  }).join('');
+}
+
+// CALENDÁRIO
+let dragData=null;
+function cM(d){S.calM+=d;if(S.calM>11){S.calM=0;S.calY++;}if(S.calM<0){S.calM=11;S.calY--;}rCal();}
+function rCal(){
+  document.getElementById('cal-lbl').textContent=MONTHS[S.calM]+' '+S.calY;
+  const gr=document.getElementById('cgrid');
+  const fd2=new Date(S.calY,S.calM,1).getDay();
+  const dim=new Date(S.calY,S.calM+1,0).getDate();
+  const dp=new Date(S.calY,S.calM,0).getDate();
+  const evts={};
+  const ae=(ds,ev)=>{if(!evts[ds])evts[ds]=[];evts[ds].push(ev);};
+  S.topics.forEach(t=>{
+    if(t.done&&t.dataE)ae(t.dataE,{type:'s',lbl:t.name,drag:'1C-'+t.id});
+    else if(!t.done&&t.schedDate){ae(t.schedDate,{type:isLate(t.schedDate)?'late':'sched',lbl:t.name,drag:'sc-'+t.id});}
+    if(t.done)['R1','R2','R3','R4'].forEach(k=>{const d=t.rev[k].data;if(d)ae(d,{type:(isLate(d)&&!t.rev[k].nq)?'late':'r',lbl:`${k}: ${t.name}`,drag:`${k}-${t.id}`});});
+  });
+  S.calEvents.forEach(ev=>{if(ev.data)ae(ev.data,{type:'p',lbl:'📝 '+ev.desc,drag:'prov-'+ev.id});if(ev.corr)ae(ev.corr,{type:'pc',lbl:'✏️ '+ev.desc,drag:'corr-'+ev.id});});
+  let html='';
+  for(let i=fd2-1;i>=0;i--)html+=`<div class="cd ot"><div class="dn2">${dp-i}</div></div>`;
+  for(let d=1;d<=dim;d++){
+    const ds=`${S.calY}-${String(S.calM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT=S.calY===TODAY.getFullYear()&&S.calM===TODAY.getMonth()&&d===TODAY.getDate();
+    const devs=evts[ds]||[];
+    html+=`<div class="cd ${isT?'td2':''}" ondragover="event.preventDefault();this.classList.add('droptgt')" ondragleave="this.classList.remove('droptgt')" ondrop="onDrop(event,'${ds}')">
+      <div class="dn2">${d}</div>
+      <div class="des">${devs.map(e=>`<div class="de de-${e.type}" draggable="true" ondragstart="onDragStart(event,'${e.drag}')" ondragend="this.classList.remove('dragging')" title="${e.lbl}">
+        <span style="flex:1;">${e.lbl}</span>
+        <button class="de-del" onclick="event.stopPropagation();delCalItem('${e.drag}')">✕</button>
+      </div>`).join('')}</div>
+    </div>`;
+  }
+  const tot=Math.ceil((fd2+dim)/7)*7;
+  for(let d=1;d<=tot-fd2-dim;d++)html+=`<div class="cd ot"><div class="dn2">${d}</div></div>`;
+  gr.innerHTML=html;rWeek();rLate();
+}
+function delCalItem(drag){
+  const parts=drag.split('-');const type=parts[0];const id=parseInt(parts.slice(1).join('-'));
+  if(type==='sc'){const t=S.topics.find(x=>x.id===id);if(t){t.schedDate='';sv();rCal();rT();}}
+  else if(type==='1C'){const t=S.topics.find(x=>x.id===id);if(t&&t.done){if(!confirm('Desmarcar este tema como feito?'))return;t.done=false;t.dataE='';t.rev['1C'].data='';sv();rCal();rT();}}
+  else if(['R1','R2','R3','R4'].includes(type)){const t=S.topics.find(x=>x.id===id);if(t){t.rev[type].data='';sv();rCal();rRev();}}
+  else if(type==='prov'||type==='corr'){const ev=S.calEvents.find(x=>x.id===id);if(ev){if(type==='prov')ev.data='';else ev.corr='';if(!ev.data&&!ev.corr)S.calEvents=S.calEvents.filter(x=>x.id!==id);sv();rCal();}}
+}
+function onDragStart(e,drag){dragData=drag;e.target.classList.add('dragging');}
+function onDrop(e,newDate){
+  e.preventDefault();document.querySelectorAll('.cd').forEach(c=>c.classList.remove('droptgt'));
+  if(!dragData)return;
+  const parts=dragData.split('-');const type=parts[0];const id=parseInt(parts.slice(1).join('-'));
+  if(type==='sc'){const t=S.topics.find(x=>x.id===id);if(t&&!t.done){t.schedDate=newDate;sv();rCal();rT();}}
+  else if(type==='1C'){const t=S.topics.find(x=>x.id===id);if(t&&t.done){t.dataE=newDate;t.rev['1C'].data=newDate;recalc(t);sv();rCal();rT();rRev();}}
+  else if(['R1','R2','R3','R4'].includes(type)){const t=S.topics.find(x=>x.id===id);if(t){t.rev[type].data=newDate;sv();rCal();rRev();}}
+  else if(type==='prov'){const ev=S.calEvents.find(x=>x.id===id);if(ev){ev.data=newDate;sv();rCal();}}
+  else if(type==='corr'){const ev=S.calEvents.find(x=>x.id===id);if(ev){ev.corr=newDate;sv();rCal();}}
+  dragData=null;
+}
+function rWeek(){
+  const sw=new Date(TODAY);sw.setDate(TODAY.getDate()-TODAY.getDay());const ew=new Date(sw);ew.setDate(sw.getDate()+6);
+  const its=[];
+  S.topics.forEach(t=>{
+    if(t.done&&t.dataE){const d=new Date(t.dataE+'T00:00:00');if(d>=sw&&d<=ew)its.push({type:'s',title:t.name,sub:'1º Contato',date:fd(t.dataE)});}
+    if(!t.done&&t.schedDate){const d=new Date(t.schedDate+'T00:00:00');if(d>=sw&&d<=ew)its.push({type:'s',title:t.name,sub:'Agendado',date:fd(t.schedDate)});}
+    if(t.done)['R1','R2','R3','R4'].forEach(k=>{const d2=t.rev[k].data;if(!d2)return;const d=new Date(d2+'T00:00:00');if(d>=sw&&d<=ew)its.push({type:'r',title:t.name,sub:'Revisão '+k,date:fd(d2)});});
+  });
+  S.calEvents.forEach(ev=>{if(ev.data){const d=new Date(ev.data+'T00:00:00');if(d>=sw&&d<=ew)its.push({type:'p',title:ev.desc,sub:'Prova',date:fd(ev.data)});}if(ev.corr){const d=new Date(ev.corr+'T00:00:00');if(d>=sw&&d<=ew)its.push({type:'p',title:ev.desc,sub:'Correção',date:fd(ev.corr)});}});
+  const el=document.getElementById('wlist');
+  if(!its.length){el.innerHTML='<div class="es">Nenhum evento esta semana</div>';return;}
+  el.innerHTML=its.map(w=>`<div class="wi"><div class="wd wd-${w.type==='s'?'s':w.type==='r'?'r':'p'}"></div><div class="wi-i"><div class="wi-ti">${w.title}</div><div class="wi-su">${w.sub}</div></div><div class="wi-d">${w.date}</div></div>`).join('');
+}
+function rLate(){
+  const items=getLateItems();const el=document.getElementById('late-list');const cnt=document.getElementById('late-count');
+  cnt.textContent=items.length?items.length:'';
+  if(!items.length){el.innerHTML='<div class="es" style="color:var(--ves)">✅ Nada atrasado!</div>';return;}
+  el.innerHTML=items.map(it=>`<div class="wi"><div class="wd wd-l"></div><div class="wi-i"><div class="wi-ti" style="color:var(--al)">${it.name}</div><div class="wi-su">Previsto: ${fd(it.date)}</div></div></div>`).join('');
+}
+function openSchedModal(){const sel=document.getElementById('sm-tema');sel.innerHTML=S.topics.filter(t=>!t.done).map(t=>`<option value="${t.id}">${t.name}${t.schedDate?' (agend. '+fd(t.schedDate)+')':''}</option>`).join('');document.getElementById('sm-data').value=TODAY.toISOString().split('T')[0];document.getElementById('sched-modal').classList.add('open');}
+function closeSchedModal(){document.getElementById('sched-modal').classList.remove('open');}
+function saveSched(){const id=parseInt(document.getElementById('sm-tema').value);const date=document.getElementById('sm-data').value;const t=S.topics.find(x=>x.id===id);if(t&&date){t.schedDate=date;sv();rCal();rT();}closeSchedModal();}
+function openCalProvModal(idx){document.getElementById('cp-desc').value='';document.getElementById('cp-data').value='';document.getElementById('cp-corr').value='';S.ecpIdx=null;document.getElementById('cp-del').style.display='none';if(idx!==undefined){S.ecpIdx=idx;const ev=S.calEvents[idx];document.getElementById('cp-desc').value=ev.desc||'';document.getElementById('cp-data').value=ev.data||'';document.getElementById('cp-corr').value=ev.corr||'';document.getElementById('cp-del').style.display='block';}document.getElementById('cal-prov-modal').classList.add('open');}
+function closeCalProvModal(){document.getElementById('cal-prov-modal').classList.remove('open');}
+function saveCalProv(){const ev={id:S.ecpIdx!==null?S.calEvents[S.ecpIdx].id:Date.now(),desc:document.getElementById('cp-desc').value,data:document.getElementById('cp-data').value,corr:document.getElementById('cp-corr').value};if(S.ecpIdx!==null)S.calEvents[S.ecpIdx]=ev;else S.calEvents.push(ev);sv();closeCalProvModal();rCal();}
+function delCalProv(){if(S.ecpIdx!==null)S.calEvents.splice(S.ecpIdx,1);sv();closeCalProvModal();rCal();}
+function openProvModal(idx){['p-n','p-i','p-a','p-ac','p-to','p-d','p-te','p-o'].forEach(id=>document.getElementById(id).value='');AREAS.forEach(a=>{document.getElementById(`pa-${a}-q`).value='';document.getElementById(`pa-${a}-a`).value='';});S.epIdx=null;document.getElementById('p-del').style.display='none';if(idx!==undefined){S.epIdx=idx;const p=S.provas[idx];document.getElementById('p-n').value=p.nome||'';document.getElementById('p-i').value=p.inst||'';document.getElementById('p-a').value=p.ano||'';document.getElementById('p-ac').value=p.acertos||'';document.getElementById('p-to').value=p.total||'';document.getElementById('p-d').value=p.data||'';document.getElementById('p-te').value=p.tempo||'';document.getElementById('p-o').value=p.obs||'';if(p.areas)AREAS.forEach(a=>{if(p.areas[a]){document.getElementById(`pa-${a}-q`).value=p.areas[a].q||'';document.getElementById(`pa-${a}-a`).value=p.areas[a].a||'';}});document.getElementById('p-del').style.display='block';}document.getElementById('prov-modal').classList.add('open');}
+function closeProvModal(){document.getElementById('prov-modal').classList.remove('open');}
+function saveP(){const areas={};AREAS.forEach(a=>{const q=document.getElementById(`pa-${a}-q`).value;const ac2=document.getElementById(`pa-${a}-a`).value;if(q||ac2)areas[a]={q,a:ac2};});const p={nome:document.getElementById('p-n').value,inst:document.getElementById('p-i').value,ano:document.getElementById('p-a').value,acertos:document.getElementById('p-ac').value,total:document.getElementById('p-to').value,data:document.getElementById('p-d').value,tempo:document.getElementById('p-te').value,obs:document.getElementById('p-o').value,areas};if(S.epIdx!==null)S.provas[S.epIdx]=p;else S.provas.push(p);sv();closeProvModal();rProv();if(document.getElementById('page-desemp').classList.contains('active'))rDesemp();}
+function delP(){if(S.epIdx!==null)S.provas.splice(S.epIdx,1);sv();closeProvModal();rProv();}
+function rProv(){
+  const g=document.getElementById('pgrid');
+  if(!S.provas.length){g.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--txs);"><div style="font-size:40px;margin-bottom:10px;">📝</div><div style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:6px;">Nenhuma prova registrada</div><div style="font-size:13px;">Clique em "+ Nova prova" para começar</div></div>`;return;}
+  g.innerHTML=S.provas.map((p,i)=>{
+    const pct=(p.acertos&&p.total)?Math.round(parseInt(p.acertos)/parseInt(p.total)*100):null;const pc=pct!==null?(pct>=70?'g':pct>=50?'m':'b'):'';const hasA=p.areas&&AREAS.some(a=>p.areas[a]);
+    return`<div class="prc" onclick="openProvModal(${i})">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div><div class="pr-ti">${p.nome||'Sem nome'}</div><div class="pr-in">${p.inst||''}${p.inst&&p.ano?' · ':''}${p.ano||''}</div></div>
+        ${p.data?`<span class="tag tag-cl">${fd(p.data)}</span>`:''}
+      </div>
+      <div class="pr-st">
+        <div class="pr-s"><div class="pr-v ${pc}">${pct!==null?pct+'%':'—'}</div><div class="pr-l">Aproveitamento</div></div>
+        <div class="pr-s"><div class="pr-v">${p.acertos||'—'}<span style="font-size:13px;color:var(--txs);">${p.total?'/'+p.total:''}</span></div><div class="pr-l">Acertos</div></div>
+        <div class="pr-s"><div class="pr-v" style="font-size:14px;">${p.tempo||'—'}</div><div class="pr-l">Tempo</div></div>
+      </div>
+      ${hasA?`<div class="pr-areas">${AREAS.filter(a=>p.areas[a]).map(a=>{const q=parseInt(p.areas[a].q)||0;const ac2=parseInt(p.areas[a].a)||0;const p2=q>0?Math.round(ac2/q*100):null;return`<div class="pr-area-row"><span class="tag tag-${a}" style="font-size:10px;">${AREA_NAMES[a]}</span><span class="pd ${p2!==null?pC(p2):''}" style="font-size:12px;">${ac2}/${q}${p2!==null?' · '+p2+'%':''}</span></div>`;}).join('')}</div>`:''}
+      ${p.obs?`<div class="pr-ob">"${p.obs}"</div>`:''}
+    </div>`;
+  }).join('');
+}
+['edit-modal','sched-modal','cal-prov-modal','prov-modal'].forEach(id=>{document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});});
+load();
+</script>
+</body>
+</html>
