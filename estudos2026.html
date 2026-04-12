@@ -478,10 +478,10 @@ tr:hover td{background:var(--bg);}
 </div>
 
 <script>
-// ===================== GIST SYNC =====================
-const GITHUB_TOKEN = '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';
-const GIST_FILENAME = 'estudos2026_data.json';
-let GIST_ID = localStorage.getItem('estudos2026_gist_id') || null;
+// ===================== JSONBIN SYNC =====================
+const JSONBIN_KEY = '$2a$10$N9HiKTtoeDk7KzSQ50Z2gelgexebfsQLzzgAs4y9ad.457XxFAfsS';
+const JSONBIN_BASE = 'https://api.jsonbin.io/v3/b';
+let BIN_ID = localStorage.getItem('estudos2026_bin_id') || null;
 let syncTimer = null;
 let lastSaved = null;
 
@@ -493,65 +493,57 @@ function setSyncStatus(status, text) {
   txt.textContent = text;
 }
 
-async function gistRequest(method, path, body) {
-  const res = await fetch('https://api.github.com' + path, {
-    method,
-    headers: {
-      'Authorization': 'token ' + GITHUB_TOKEN,
-      'Accept': 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json'
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
-  if (!res.ok) throw new Error('GitHub API error: ' + res.status);
-  return res.json();
-}
-
-async function createGist(data) {
-  const result = await gistRequest('POST', '/gists', {
-    description: 'Estudos 2026 - Dados de Estudo',
-    public: false,
-    files: { [GIST_FILENAME]: { content: JSON.stringify(data) } }
-  });
-  GIST_ID = result.id;
-  localStorage.setItem('estudos2026_gist_id', GIST_ID);
-  return GIST_ID;
-}
-
-async function updateGist(data) {
-  await gistRequest('PATCH', '/gists/' + GIST_ID, {
-    files: { [GIST_FILENAME]: { content: JSON.stringify(data) } }
-  });
-}
-
-async function loadFromGist() {
-  if (!GIST_ID) return null;
-  try {
-    const result = await gistRequest('GET', '/gists/' + GIST_ID);
-    const content = result.files[GIST_FILENAME]?.content;
-    return content ? JSON.parse(content) : null;
-  } catch(e) {
-    // Gist may have been deleted
-    GIST_ID = null;
-    localStorage.removeItem('estudos2026_gist_id');
-    return null;
-  }
-}
-
-async function syncToGist(data) {
+async function saveToBin(data) {
   setSyncStatus('saving', 'Salvando... ☁️');
   try {
-    if (!GIST_ID) {
-      await createGist(data);
+    if (!BIN_ID) {
+      const res = await fetch(JSONBIN_BASE, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': JSONBIN_KEY,
+          'X-Bin-Name': 'estudos2026',
+          'X-Bin-Private': 'true'
+        },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error('Erro ao criar: ' + res.status);
+      const json = await res.json();
+      BIN_ID = json.metadata.id;
+      localStorage.setItem('estudos2026_bin_id', BIN_ID);
     } else {
-      await updateGist(data);
+      const res = await fetch(JSONBIN_BASE + '/' + BIN_ID, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': JSONBIN_KEY
+        },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error('Erro ao salvar: ' + res.status);
     }
     lastSaved = Date.now();
     setSyncStatus('saved', 'Sincronizado ✅');
     setTimeout(() => setSyncStatus('', 'Sincronizado ☁️'), 3000);
   } catch(e) {
+    console.error(e);
     setSyncStatus('error', 'Erro ao salvar ⚠️');
   }
+}
+
+async function loadFromBin() {
+  if (!BIN_ID) return null;
+  try {
+    const res = await fetch(JSONBIN_BASE + '/' + BIN_ID + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    if (!res.ok) {
+      if (res.status === 404) { BIN_ID = null; localStorage.removeItem('estudos2026_bin_id'); }
+      return null;
+    }
+    const json = await res.json();
+    return json.record || null;
+  } catch(e) { return null; }
 }
 
 // ===================== CONSTANTS =====================
@@ -690,7 +682,7 @@ function applyPayload(p){
 async function load(){
   setSyncStatus('saving','Carregando... ☁️');
   try{
-    const data=await loadFromGist();
+    const data=await loadFromBin();
     if(data){applyPayload(data);}
     setSyncStatus('saved','Sincronizado ✅');
     setTimeout(()=>setSyncStatus('','Sincronizado ☁️'),2000);
@@ -702,7 +694,7 @@ async function load(){
 
 function sv(){
   clearTimeout(syncTimer);
-  syncTimer=setTimeout(()=>syncToGist(getPayload()),1200);
+  syncTimer=setTimeout(()=>saveToBin(getPayload()),1200);
 }
 
 // TABS
