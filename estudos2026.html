@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -250,6 +251,7 @@ tr:hover td{background:var(--bg);}
 </header>
 
 <!-- CRONOGRAMA -->
+
 <div class="page active" id="page-cron">
   <div class="sh">
     <div><div class="st">Cronograma de Temas</div><div class="ss">Filtros combinados · ✏️ editar · ✓ marcar como feito</div></div>
@@ -276,6 +278,7 @@ tr:hover td{background:var(--bg);}
 </div>
 
 <!-- REVISÕES -->
+
 <div class="page" id="page-rev">
   <div class="sh"><div><div class="st">Revisões</div><div class="ss">R1=1 semana · R2=1 mês · R3=2 meses · R4=4 meses · datas e questões editáveis</div></div></div>
   <div class="pg3">
@@ -315,6 +318,7 @@ tr:hover td{background:var(--bg);}
 </div>
 
 <!-- DESEMPENHO -->
+
 <div class="page" id="page-desemp">
   <div class="sh"><div><div class="st">Desempenho</div><div class="ss">Total de questões e % de acerto · inclui questões de provas</div></div></div>
   <div class="dtop">
@@ -344,6 +348,7 @@ tr:hover td{background:var(--bg);}
 </div>
 
 <!-- CALENDÁRIO -->
+
 <div class="page" id="page-cal">
   <div class="sh">
     <div><div class="st">Calendário</div><div class="ss">Arraste eventos · ✕ para excluir</div></div>
@@ -377,6 +382,7 @@ tr:hover td{background:var(--bg);}
 </div>
 
 <!-- PROVAS -->
+
 <div class="page" id="page-prov">
   <div class="sh">
     <div><div class="st">Provas &amp; Simulados</div><div class="ss">Detalhe por grande área · aparece automaticamente no Desempenho</div></div>
@@ -386,6 +392,7 @@ tr:hover td{background:var(--bg);}
 </div>
 
 <!-- MODAIS -->
+
 <div class="mo" id="edit-modal">
   <div class="md">
     <h3 id="edit-modal-title">Editar Tema</h3>
@@ -965,5 +972,6 @@ function rProv(){
 ['edit-modal','sched-modal','cal-prov-modal','prov-modal'].forEach(id=>{document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});});
 load();
 </script>
+
 </body>
 </html>
