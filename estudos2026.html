@@ -488,7 +488,10 @@ tr:hover td{background:var(--bg);}
 // ===================== JSONBIN SYNC =====================
 const JSONBIN_KEY = '$2a$10$N9HiKTtoeDk7KzSQ50Z2gelgexebfsQLzzgAs4y9ad.457XxFAfsS';
 const JSONBIN_BASE = 'https://api.jsonbin.io/v3/b';
-let BIN_ID = localStorage.getItem('estudos2026_bin_id') || null;
+
+// BIN ID fixo — todos os dispositivos usam o mesmo
+const BIN_ID = '69dc2c9baaba882197f0ce03';
+
 let syncTimer = null;
 
 function setSyncStatus(status, text) {
@@ -502,45 +505,17 @@ function setSyncStatus(status, text) {
 async function saveToBin(data) {
   setSyncStatus('saving', 'Salvando...');
   try {
-    let res;
-    if (!BIN_ID) {
-      // Create new bin
-      res = await fetch(JSONBIN_BASE, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Master-Key': JSONBIN_KEY,
-          'X-Bin-Name': 'estudos2026',
-          'X-Bin-Private': 'true'
-        },
-        body: JSON.stringify(data)
-      });
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error('Criar bin falhou (' + res.status + '): ' + err);
-      }
-      const created = await res.json();
-      BIN_ID = created.metadata.id;
-      localStorage.setItem('estudos2026_bin_id', BIN_ID);
-    } else {
-      // Update existing bin
-      res = await fetch(JSONBIN_BASE + '/' + BIN_ID, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Master-Key': JSONBIN_KEY
-        },
-        body: JSON.stringify(data)
-      });
-      if (!res.ok) {
-        const err = await res.text();
-        // If bin was deleted remotely, reset and recreate next time
-        if (res.status === 404) {
-          BIN_ID = null;
-          localStorage.removeItem('estudos2026_bin_id');
-        }
-        throw new Error('Atualizar bin falhou (' + res.status + '): ' + err);
-      }
+    const res = await fetch(JSONBIN_BASE + '/' + BIN_ID, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_KEY
+      },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error('Erro ao salvar (' + res.status + '): ' + err);
     }
     setSyncStatus('saved', '✓ Salvo na nuvem');
     setTimeout(() => setSyncStatus('', '☁️ Nuvem'), 3000);
@@ -551,18 +526,11 @@ async function saveToBin(data) {
 }
 
 async function loadFromBin() {
-  if (!BIN_ID) return null;
   try {
     const res = await fetch(JSONBIN_BASE + '/' + BIN_ID + '/latest', {
-      headers: {
-        'X-Master-Key': JSONBIN_KEY
-      }
+      headers: { 'X-Master-Key': JSONBIN_KEY }
     });
     if (!res.ok) {
-      if (res.status === 404) {
-        BIN_ID = null;
-        localStorage.removeItem('estudos2026_bin_id');
-      }
       console.error('loadFromBin failed:', res.status);
       return null;
     }
