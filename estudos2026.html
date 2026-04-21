@@ -224,7 +224,112 @@ tr:hover td{background:var(--bg);}
 ::-webkit-scrollbar{width:5px;}
 ::-webkit-scrollbar-track{background:var(--bg2);}
 ::-webkit-scrollbar-thumb{background:var(--bo);border-radius:99px;}
-@media(max-width:768px){header{padding:14px 14px 0;}.hsts{display:none;}.page{padding:14px;}.cal-outer{grid-template-columns:1fr;}.tab{padding:8px 9px;font-size:11px;}.pg3{grid-template-columns:1fr;}}
+@media(max-width:768px){
+  /* HEADER */
+  header{padding:12px 14px 0;position:sticky;top:0;z-index:200;}
+  .htop{margin-bottom:10px;}
+  .logo-i{width:34px;height:34px;font-size:16px;}
+  .logo-t h1{font-size:17px;}
+  .logo-t span{font-size:10px;}
+  .hsts{display:none;}
+
+  /* NAVEGAÇÃO — barra inferior fixa */
+  nav{
+    display:flex;position:fixed;bottom:0;left:0;right:0;z-index:300;
+    background:white;border-top:1.5px solid var(--bo);
+    box-shadow:0 -4px 20px rgba(0,0,0,.08);
+    padding:0 0 env(safe-area-inset-bottom);
+    gap:0;flex-wrap:nowrap;
+  }
+  .tab{
+    flex:1;padding:10px 4px 8px;border-radius:0;border-bottom:none;
+    font-size:9px;font-weight:600;display:flex;flex-direction:column;
+    align-items:center;gap:3px;color:var(--txs);
+    border-top:2px solid transparent;
+  }
+  .tab.active{border-top:2px solid var(--ve);border-bottom:none;background:var(--vec);color:var(--ves);}
+
+  .tab .bdg{top:4px;right:calc(50% - 20px);}
+
+  /* PÁGINAS — espaço para barra inferior */
+  .page{
+    padding:14px 12px;
+    padding-bottom:calc(80px + env(safe-area-inset-bottom));
+    max-width:100%;
+  }
+
+  /* SYNC BAR */
+  #sync-bar{bottom:calc(70px + env(safe-area-inset-bottom));right:12px;font-size:11px;padding:6px 10px;}
+
+  /* SEÇÃO HEADER */
+  .sh{flex-direction:column;align-items:flex-start;gap:10px;}
+  .sh > div:last-child{width:100%;display:flex;gap:8px;}
+  .sh .bgr,.sh .bblu,.sh .bam{flex:1;justify-content:center;}
+
+  /* FILTROS */
+  .filt{gap:5px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:6px;-webkit-overflow-scrolling:touch;}
+  .filt::-webkit-scrollbar{display:none;}
+  .fb{flex-shrink:0;font-size:11px;padding:5px 10px;white-space:nowrap;}
+  .filt-sep{display:none;}
+  .sb{min-width:140px;max-width:none;flex-shrink:0;}
+
+  /* GRID DE CARDS */
+  .cgrid{grid-template-columns:1fr;gap:10px;}
+  .tc-ti{font-size:14px;}
+  .ck{width:26px;height:26px;border-radius:8px;}
+  .ck.on::after{font-size:14px;}
+  .edit-btn{width:26px;height:26px;}
+
+  /* TABELAS — scroll horizontal */
+  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{min-width:600px;}
+  .pg3{grid-template-columns:1fr;gap:10px;}
+  .dtop{grid-template-columns:1fr;gap:10px;}
+
+  /* CARDS DE DESEMPENHO */
+  .dc{padding:14px;}
+  .dn{font-size:26px;}
+
+  /* CALENDÁRIO */
+  .cal-outer{grid-template-columns:1fr;gap:12px;}
+  .cgr2{gap:1px;padding:4px 6px 10px;}
+  .cd{min-height:56px;padding:3px;}
+  .dn2{font-size:11px;}
+  .de{font-size:8px;padding:2px 3px;}
+  .cdow{padding:6px 6px 2px;}
+  .cdn{font-size:9px;}
+  .ch{padding:10px 14px;}
+  .ch h3{font-size:15px;}
+
+  /* PROVAS GRID */
+  .prg{grid-template-columns:1fr;gap:10px;}
+
+  /* MODAIS — tela cheia no mobile */
+  .mo{align-items:flex-end;}
+  .md{
+    width:100%;max-width:100%;border-radius:20px 20px 0 0;
+    padding:20px 18px;
+    padding-bottom:calc(20px + env(safe-area-inset-bottom));
+    max-height:92vh;
+  }
+  .md h3{font-size:18px;}
+  .fr{grid-template-columns:1fr;}
+  .area-grid{grid-template-columns:1fr;}
+  .mf{flex-wrap:wrap;}
+  .mf .bs,.mf .bn,.mf .bd{flex:1;min-width:120px;text-align:center;justify-content:center;}
+
+  /* INPUTS MAIORES PARA TOQUE */
+  .fg input,.fg select,.fg textarea{font-size:16px;padding:10px 14px;}
+  .fg select{font-size:16px;}
+  .ri{width:58px;font-size:13px;padding:5px;}
+  .di{font-size:12px;padding:5px 8px;}
+
+  /* BOTÕES */
+  .bsm{padding:7px 12px;font-size:12px;}
+  .bgr,.bblu,.bam{padding:10px 16px;font-size:13px;}
+  .bs{padding:12px 20px;font-size:14px;}
+  .bn{padding:12px 16px;font-size:14px;}
+}
 </style>
 </head>
 <body>
@@ -246,7 +351,7 @@ tr:hover td{background:var(--bg);}
     <button class="tab" onclick="goTab('rev')">🔄 Revisões</button>
     <button class="tab" onclick="goTab('desemp')">📊 Desempenho</button>
     <button class="tab" onclick="goTab('cal')">🗓️ Calendário <span class="bdg" id="bdg"></span></button>
-    <button class="tab" onclick="goTab('prov')">📝 Provas / Simulados</button>
+    <button class="tab" onclick="goTab('prov')">📝 Provas</button>
   </nav>
 </header>
 
