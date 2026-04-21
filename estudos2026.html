@@ -590,12 +590,9 @@ tr:hover td{background:var(--bg);}
 </div>
 
 <script>
-// ===================== JSONBIN SYNC =====================
-const JSONBIN_KEY = '$2a$10$N9HiKTtoeDk7KzSQ50Z2gelgexebfsQLzzgAs4y9ad.457XxFAfsS';
-const JSONBIN_BASE = 'https://api.jsonbin.io/v3/b';
-
-// BIN ID fixo — todos os dispositivos usam o mesmo
-const BIN_ID = '69dc2c9baaba882197f0ce03';
+// ===================== SYNC — localStorage + nuvem via script =====================
+// CONFIGURAÇÃO: cole aqui a URL do seu Google Apps Script após publicar
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxi6UwETHfMEjM95EJIvO7I1NjzkHBrTWXYuyUfxmVVPu50y6OTEvQmGQSZHywZeHNW/exec';
 
 let syncTimer = null;
 
@@ -607,42 +604,48 @@ function setSyncStatus(status, text) {
   txt.textContent = text;
 }
 
+function saveLocal(data) {
+  try { localStorage.setItem('estudos2026_data', JSON.stringify(data)); } catch(e) {}
+}
+
+function loadLocal() {
+  try {
+    const d = localStorage.getItem('estudos2026_data');
+    return d ? JSON.parse(d) : null;
+  } catch(e) { return null; }
+}
+
 async function saveToBin(data) {
+  saveLocal(data);
+  if (!SCRIPT_URL || SCRIPT_URL === '%%SCRIPT_URL%%') {
+    setSyncStatus('saved', '✓ Salvo localmente');
+    setTimeout(() => setSyncStatus('', '💾 Local'), 2000);
+    return;
+  }
   setSyncStatus('saving', 'Salvando...');
   try {
-    const res = await fetch(JSONBIN_BASE + '/' + BIN_ID, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY
-      },
-      body: JSON.stringify(data)
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'save', data })
     });
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error('Erro ao salvar (' + res.status + '): ' + err);
-    }
     setSyncStatus('saved', '✓ Salvo na nuvem');
     setTimeout(() => setSyncStatus('', '☁️ Nuvem'), 3000);
   } catch(e) {
-    console.error('JSONBIN SAVE ERROR:', e);
-    setSyncStatus('error', '⚠ Erro: ' + e.message.substring(0, 40));
+    setSyncStatus('saved', '✓ Salvo localmente');
+    setTimeout(() => setSyncStatus('', '💾'), 2000);
   }
 }
 
 async function loadFromBin() {
+  if (!SCRIPT_URL || SCRIPT_URL === '%%SCRIPT_URL%%') return null;
   try {
-    const res = await fetch(JSONBIN_BASE + '/' + BIN_ID + '/latest', {
-      headers: { 'X-Master-Key': JSONBIN_KEY }
-    });
-    if (!res.ok) {
-      console.error('loadFromBin failed:', res.status);
-      return null;
-    }
+    const res = await fetch(SCRIPT_URL + '?action=load', { mode: 'cors' });
+    if (!res.ok) return null;
     const json = await res.json();
-    return json.record || null;
+    return json.data || null;
   } catch(e) {
-    console.error('loadFromBin error:', e);
     return null;
   }
 }
