@@ -781,16 +781,20 @@ function applyPayload(p){
 }
 
 async function load(){
-  setSyncStatus('saving','Carregando... ☁️');
-  try{
-    const data=await loadFromBin();
-    if(data){applyPayload(data);}
-    setSyncStatus('saved','Sincronizado ✅');
-    setTimeout(()=>setSyncStatus('','Sincronizado ☁️'),2000);
-  }catch(e){
-    setSyncStatus('error','Sem conexão ⚠️');
-  }
+  // Renderiza imediatamente sem esperar a nuvem
   rT();rProv();
+  setSyncStatus('saving','Sincronizando... ☁️');
+  try{
+    const fetchPromise = loadFromBin();
+    const timeoutPromise = new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),8000));
+    const data = await Promise.race([fetchPromise, timeoutPromise]);
+    if(data){applyPayload(data);rT();rProv();}
+    setSyncStatus('saved','Sincronizado ✅');
+    setTimeout(()=>setSyncStatus('','☁️ Nuvem'),2000);
+  }catch(e){
+    setSyncStatus('error', e.message==='timeout'?'⚠ Sem conexão':'⚠ Erro de rede');
+    setTimeout(()=>setSyncStatus('','☁️'),4000);
+  }
 }
 
 function sv(){
